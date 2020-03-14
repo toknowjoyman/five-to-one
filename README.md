@@ -1,21 +1,43 @@
-# Five-to-one(521)
-A free-software work-in-progress app to implement the Warren Buffet &amp; Charles Munger 5/25 rule into a todo app, s.t. we the people are <i> "gonna make it, baby, in our prime". </i>
+# Five-to-one (521)
+## Manifesto, Roadmap, and Milestones.
+A free-software to implement the Warren Buffet &amp; Charles Munger (WBCM) '5/25 model' into a "To Do" app. 
+
+We the people <i> "gonna make it, baby, in our prime". </i>
+   WBCM's 5/25 prioritization method
+
 
 The 5/25 rule by WBCM allows you to focus your thoughts and acheive success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
+
+- Make 5 tasks serve 1 goal ( *Five to one, baby* )
+- Prioritize 1 from each 5 tasks ( *one in five* )
+- [YOL0](#yol-now) ( *no one here gets out alive* )
+- Important vs. Urgent ( *You get yours baby, I get mine* )
+- Change yourself with internal-dialogue ( *we can make it baby, if we try* )
+
 ## MVP Milestones
 0. MVP Definition 
 1. [Use Case](#initial-use-case)
     * [User Flow](#user-flow)
-2. Wireframes 
+2. [Wireframes](../Design-Documents/Wireframes)
 3. Rails API
 4. UI - Web Browser 
 5. UI - Native
 
-With a name inspired by the Doors song, the App is meant to assist people to take back control of thier lives. We no longer need to hear another human complain: <i> "Shadows of the evening crawl across the years" </i>
+With a name backed by the Doors song, the App is meant to assist people to take back control of thier lives. We no longer need to hear another human complain: <i> "Shadows of the evening crawl across the years" </i>
 
 A key challenge to solve for: Dedicated use of the app as a to do list (and a not to do list)
 
 # The App Design 
+
+Home Screen:
+![alt text][home-screen]
+
+[home-screen]: https://github.com/toknowjoyman/five-to-one/tree/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
+
+Not-To-Do List:
+![alt text][notToDo-list]
+
+[notToDo-list]: https://github.com/toknowjoyman/five-to-one/tree/master/Design-Plan/Wireframes/Getta-Not_to_do_list.png "Task List - First Draft"
 
 ## Initial Use Case
 Robert, who has too much to do, finds that Five to one (or should we call it 1 in 5) might help him prioritize his goals. 
