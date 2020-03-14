@@ -2,9 +2,10 @@
 A free-software work-in-progress app to implement the Warren Buffet &amp; Charles Munger 5/25 rule into a todo app, s.t. we the people are <i> "gonna make it, baby, in our prime". </i>
 
 The 5/25 rule by WBCM allows you to focus your thoughts and acheive success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
-
+## MVP Milestones
+0. MVP Definition 
 1. [Use Case](#initial-use-case)
-    * User Flow
+    * [User Flow](#user-flow)
 2. Wireframes 
 3. Rails API
 4. UI - Web Browser 
