@@ -13,11 +13,11 @@ We the people <i> "gonna make it, baby, in our prime". </i>
     
 The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
 
-      - Make 5 tasks serve 1 goal ( *Five to one, baby* )
-      - Prioritize 1 from each 5 tasks ( *one in five* )
-      - [YOL0](#yol-now) ( *no one here gets out alive* )
-      - Important vs. Urgent ( *You get yours baby, I get mine* )
-      - Change yourself with internal-dialogue ( *we can make it baby, if we try* )
+   - Make 5 tasks serve 1 goal ( *Five to one, baby* )
+   - Prioritize 1 from each 5 tasks ( *one in five* )
+   - [YOL0](#yol-now) ( *no one here gets out alive* )
+   - Important vs. Urgent ( *You get yours baby, I get mine* )
+   - Change yourself with internal-dialogue ( *we can make it baby, if we try* )
 
 ## Milestones on the Road Map
 0. [MVP](#milestone-0)
