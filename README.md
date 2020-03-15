@@ -34,15 +34,15 @@ A key challenge to solve for: Dedicated use of the app as a to do list (and a no
 
 # The App Design 
 
-Home Screen:
+Home-Screen:
 ![alt text][home-screen]
 
-[home-screen]: https://github.com/toknowjoyman/five-to-one/tree/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
+[home-screen]:https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
 
-Not-To-Do List:
+Not-To-Do-List:
 ![alt text][notToDo-list]
 
-[notToDo-list]: https://github.com/toknowjoyman/five-to-one/tree/master/Design-Plan/Wireframes/Getta-Not_to_do_list.png "Task List - First Draft"
+[notToDo-list]: https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-Not_to_do_list.png "Task List - First Draft"
 
 ## Initial Use Case
 Robert, who has too much to do, finds that Five to one (or should we call it 1 in 5) might help him prioritize his goals. 
