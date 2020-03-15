@@ -11,22 +11,30 @@ We the people <i> "gonna make it, baby, in our prime". </i>
      - dont touch the other 20 tasks until completion.
     
     
-The 5/25 rule by WBCM allows you to focus your thoughts and acheive success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
+The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
 
-- Make 5 tasks serve 1 goal ( *Five to one, baby* )
-- Prioritize 1 from each 5 tasks ( *one in five* )
-- [YOL0](#yol-now) ( *no one here gets out alive* )
-- Important vs. Urgent ( *You get yours baby, I get mine* )
-- Change yourself with internal-dialogue ( *we can make it baby, if we try* )
+      - Make 5 tasks serve 1 goal ( *Five to one, baby* )
+      - Prioritize 1 from each 5 tasks ( *one in five* )
+      - [YOL0](#yol-now) ( *no one here gets out alive* )
+      - Important vs. Urgent ( *You get yours baby, I get mine* )
+      - Change yourself with internal-dialogue ( *we can make it baby, if we try* )
 
-## MVP Milestones
-0. MVP Definition 
-1. [Use Case](#initial-use-case)
-    * [User Flow](#user-flow)
-2. [Wireframes](../Design-Documents/Wireframes)
-3. Rails API
-4. UI - Web Browser 
-5. UI - Native
+## Milestones on the Road Map
+0. [MVP](#milestone-0)
+   1. [Use Case](#initial-use-case)
+      * [User Flow](#user-flow)
+   2. [Wireframes](../Design-Plan/Wireframes)
+   3. Rails API [!*Current IP*]
+   4. UI - Web Browser 
+   5. UI - Native
+1. Features
+   * Timeline Text annotation(GUI->M3!)
+   * ..
+2. UX
+   * scrolling MRU
+   * ..
+3. Integrations
+   * timeline mvp
 
 With a name backed by the Doors song, the App is meant to assist people to take back control of thier lives. We no longer need to hear another human complain: <i> "Shadows of the evening crawl across the years" </i>
 
@@ -72,12 +80,21 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 
 #### Checking old todo item (and updating it) 
 
+## Milestone 0
+* create tasks
+* prioritize tasks
+* Execute a task
+   * look through tasks
+* update task
+
 # App Development 
 
 ## todo-item
 A todo-item object has a title, a parent todo-item
 
 A todo-item may take the place of a goal, a primary task, or a subtask or subtask of subtask)
+
+
 
 # Lyrics of the song for reference and inspiration
 <i> Five to one, baby
