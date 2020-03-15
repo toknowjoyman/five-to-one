@@ -37,7 +37,7 @@ A key challenge to solve for: Dedicated use of the app as a to do list (and a no
 Home-Screen:
 ![alt text][home-screen]
 
-[home-screen]:https://raw.github.com/toknowjoyman/five-to-one/tree/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
+[home-screen]:https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
 
 Not-To-Do-List:
 ![alt text][notToDo-list]
