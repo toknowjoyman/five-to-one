@@ -34,12 +34,12 @@ A key challenge to solve for: Dedicated use of the app as a to do list (and a no
 
 # The App Design 
 
-Home-Screen:
+
 ![alt text][home-screen]
 
 [home-screen]:https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
 
-Not-To-Do-List:
+
 ![alt text][notToDo-list]
 
 [notToDo-list]: https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-Not_to_do_list.png "Task List - First Draft"
