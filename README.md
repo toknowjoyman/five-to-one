@@ -3,9 +3,14 @@
 A free-software to implement the Warren Buffet &amp; Charles Munger (WBCM) '5/25 model' into a "To Do" app. 
 
 We the people <i> "gonna make it, baby, in our prime". </i>
-   WBCM's 5/25 prioritization method
-
-
+   
+    WBCM's 5/25 prioritization method prescribes:
+     - listing 25 to-do items
+     - prioritizing them
+     - pick the top 5 as things to focus on first.
+     - dont touch the other 20 tasks until completion.
+    
+    
 The 5/25 rule by WBCM allows you to focus your thoughts and acheive success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
 
 - Make 5 tasks serve 1 goal ( *Five to one, baby* )
