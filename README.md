@@ -75,7 +75,7 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 # App Development 
 
 ## todo-item
-A todo-item object has a title, a parent todo-item, and a list of children.
+A todo-item object has a title, a parent todo-item
 
 A todo-item may take the place of a goal, a primary task, or a subtask or subtask of subtask)
 
