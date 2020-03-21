@@ -15,9 +15,9 @@ The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in y
 
    - Make 5 tasks serve 1 goal ( *Five to one, baby* )
    - Prioritize 1 from each 5 tasks ( *one in five* )
-   - [YOL0](#yol-now) ( *no one here gets out alive* )
+   - [YOL0](#yol-now) ( *no one here gets out alive, now* )
    - Important vs. Urgent ( *You get yours baby, I get mine* )
-   - Change yourself with internal-dialogue ( *we can make it baby, if we try* )
+   - Change yourself with internal-dialogue ( *gonna make it baby, if we try* )
 
 ## Milestones on the Road Map
 0. [MVP](#milestone-0)
@@ -46,11 +46,6 @@ A key challenge to solve for: Dedicated use of the app as a to do list (and a no
 ![alt text][home-screen]
 
 [home-screen]:https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
-
-
-![alt text][notToDo-list]
-
-[notToDo-list]: https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-Not_to_do_list.png "Task List - First Draft"
 
 ## Initial Use Case
 Robert, who has too much to do, finds that Five to one (or should we call it 1 in 5) might help him prioritize his goals. 
@@ -81,11 +76,22 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 #### Checking old todo item (and updating it) 
 
 ## Milestone 0
+### api
 * create tasks
 * prioritize tasks
 * Execute a task
    * look through tasks
 * update task
+* subtask
+### ui
+* create 25 tasks
+   * 25 forms
+   * priority numbers forms
+* dashboard 
+   * new task form
+   * main 5 goals buttons
+   * non-tasks button  
+* goal subtasks
 
 # App Development 
 
