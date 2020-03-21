@@ -23,7 +23,10 @@ default: &default
 
 development:
   <<: *default
-  database: src_rails_pgsql_development
+  host: localhost
+  database: postgres
+  username: postgres
+  password:
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.

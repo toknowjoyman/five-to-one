@@ -1,16 +1,16 @@
 # Five-to-one (521)
 ## Manifesto, Roadmap, and Milestones.
-A free-software to implement the Warren Buffet &amp; Charles Munger (WBCM) '5/25 model' into a "To Do" app. 
+A free-software to implement the Warren Buffet &amp; Charles Munger (WBCM) '5/25 model' into a "To Do" app.
 
 We the people <i> "gonna make it, baby, in our prime". </i>
-   
+
     WBCM's 5/25 prioritization method prescribes:
      - listing 25 to-do items
      - prioritizing them
      - pick the top 5 as things to focus on first.
      - dont touch the other 20 tasks until completion.
-    
-    
+
+
 The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in your goals instead of <i>"Trade in your hours for a handful dimes". </i>
 
    - Make 5 tasks serve 1 goal ( *Five to one, baby* )
@@ -25,7 +25,7 @@ The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in y
       * [User Flow](#user-flow)
    2. [Wireframes](../Design-Plan/Wireframes)
    3. Rails API [!*Current IP*]
-   4. UI - Web Browser 
+   4. UI - Web Browser
    5. UI - Native
 1. Features
    * Timeline Text annotation(GUI->M3!)
@@ -40,7 +40,7 @@ With a name backed by the Doors song, the App is meant to assist people to take 
 
 A key challenge to solve for: Dedicated use of the app as a to do list (and a not to do list)
 
-# The App Design 
+# The App Design
 
 
 ![alt text][home-screen]
@@ -48,19 +48,19 @@ A key challenge to solve for: Dedicated use of the app as a to do list (and a no
 [home-screen]:https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
 
 ## Initial Use Case
-Robert, who has too much to do, finds that Five to one (or should we call it 1 in 5) might help him prioritize his goals. 
-On opening the App, he is greeted with an 'empty todo list' and informed that this is to list the 25 things that really matter to him that he is not able to satisfactorily focus on. 
+Robert, who has too much to do, finds that Five to one (or should we call it 1 in 5) might help him prioritize his goals.
+On opening the App, he is greeted with an 'empty todo list' and informed that this is to list the 25 things that really matter to him that he is not able to satisfactorily focus on.
 
 After upto 5 things are listed, when robert clicks 'Done' the app asks him to select the 5 things for his prioirty list. When he presses "continue".
 
-The app shows Robert the list of the 20 remaining items on his list. It shows him that it has renamed the list to "Avoid at all costs" Grayed out all the entries and locked the list. 
+The app shows Robert the list of the 20 remaining items on his list. It shows him that it has renamed the list to "Avoid at all costs" Grayed out all the entries and locked the list.
 
-The App proceeds to the 'wheel screen' that shows Robert the 5 priorities he needs to work on. And gives him control again. 
+The App proceeds to the 'wheel screen' that shows Robert the 5 priorities he needs to work on. And gives him control again.
 
-On clicking one of the goals, The app shows Robert details, options and sub tasks related to the goal. 
-This is the birthplace of a new app (Fractal ToDo), so in the meantime we will stick to keeping this part minimal. 
+On clicking one of the goals, The app shows Robert details, options and sub tasks related to the goal.
+This is the birthplace of a new app (Fractal ToDo), so in the meantime we will stick to keeping this part minimal.
 
-Allow Robert to add and see subtasks to each goal. Force(?) Robert to Set whether the Goal is "Urgent or Important", i.e. is the goal something he needs to complete to satisfy his external needs (reported to someoneelse) or his inner needs (only reported to oneself). 
+Allow Robert to add and see subtasks to each goal. Force(?) Robert to Set whether the Goal is "Urgent or Important", i.e. is the goal something he needs to complete to satisfy his external needs (reported to someoneelse) or his inner needs (only reported to oneself).
 
 
 ### User Flow
@@ -73,7 +73,7 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 #### Creating new todo item
 
 
-#### Checking old todo item (and updating it) 
+#### Checking old todo item (and updating it)
 
 ## Milestone 0
 ### api
@@ -87,13 +87,14 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 * create 25 tasks
    * 25 forms
    * priority numbers forms
-* dashboard 
+   * reset priority numbers
+* dashboard
    * new task form
    * main 5 goals buttons
    * non-tasks button  
 * goal subtasks
 
-# App Development 
+# App Development
 
 ## todo-item
 A todo-item object has a title, a parent todo-item

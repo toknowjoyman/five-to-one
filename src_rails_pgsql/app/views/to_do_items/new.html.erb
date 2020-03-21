@@ -1,5 +1,5 @@
 <h1>New To Do</h1>
-<%= form_with scope: :to_do_item, local: true do |form| %>
+<%= form_with scope: :to_do_item, url: to_do_items_path, local: true do |form| %>
   <p>
     <%= form.label :title %><br>
     <%= form.text_field :title %>

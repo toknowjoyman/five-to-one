@@ -2,7 +2,7 @@ class CreateToDoItems < ActiveRecord::Migration[5.2]
   def change
     create_table :to_do_items do |t|
       t.string :title
-      t.int :parent
+      t.string :parent
 
       t.timestamps
     end
