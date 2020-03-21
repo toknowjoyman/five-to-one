@@ -47,11 +47,6 @@ A key challenge to solve for: Dedicated use of the app as a to do list (and a no
 
 [home-screen]:https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-User_Dashboard.png "Circular 5 mode - First Draft"
 
-
-![alt text][notToDo-list]
-
-[notToDo-list]: https://github.com/toknowjoyman/five-to-one/raw/master/Design-Plan/Wireframes/Getta-Not_to_do_list.png "Task List - First Draft"
-
 ## Initial Use Case
 Robert, who has too much to do, finds that Five to one (or should we call it 1 in 5) might help him prioritize his goals. 
 On opening the App, he is greeted with an 'empty todo list' and informed that this is to list the 25 things that really matter to him that he is not able to satisfactorily focus on. 
@@ -81,11 +76,22 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 #### Checking old todo item (and updating it) 
 
 ## Milestone 0
+### api
 * create tasks
 * prioritize tasks
 * Execute a task
    * look through tasks
 * update task
+* subtask
+### ui
+* create 25 tasks
+   * 25 forms
+   * priority numbers forms
+* dashboard 
+   * new task form
+   * main 5 goals buttons
+   * non-tasks button  
+* goal subtasks
 
 # App Development 
 
