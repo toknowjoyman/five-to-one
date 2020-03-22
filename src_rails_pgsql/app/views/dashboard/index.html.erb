@@ -2,3 +2,37 @@
 <p>
   The time is now: <%= Time.now %>
 </p>
+
+
+<!-- NEW TO DO -->
+<%= form_with scope: :to_do_item, url: to_do_items_path, local: true do |form| %>
+<p>
+  <%= form.hidden_field :parent, value: "NaN" %>
+  <%= form.hidden_field :priority, value: "Nil" %>
+  <%= form.text_field :title, placeholder: "New task" %>
+  <%= form.submit :"+" %>
+</p>
+<% end %>
+
+<!-- 5 GOALS -->
+<table>
+  <tr>
+    <th>Focus</th>
+    <th colspan="3"></th>
+  </tr>
+
+  <% @to_do_items.each do |article| %>
+    <% if article.priority.is_a?(Integer) && article.priority <= 5 && article.parent == "0" %>
+      <tr>
+        <td><%= link_to article.title, to_do_item_path(article) %></td>
+
+      </tr>
+    <% end %>
+  <% end %>
+</table>
+
+<!-- NON-TASKS -->
+<p>
+<strong> List: </strong>
+<%= link_to "nontasks", to_do_items_path %>
+</p>

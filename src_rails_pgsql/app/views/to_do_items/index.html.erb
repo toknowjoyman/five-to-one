@@ -3,15 +3,17 @@
 
 <table>
   <tr>
+    <th>Parent</th>
+    <th>Priority</th>
     <th>Title</th>
-    <th>Text</th>
     <th colspan="3"></th>
   </tr>
 
   <% @to_do_items.each do |article| %>
     <tr>
-      <td><%= article.title %></td>
       <td><%= article.parent %></td>
+      <td><%= article.priority %></td>
+      <td><%= article.title %></td>
       <td><%= link_to 'Show', to_do_item_path(article) %></td>
       <td><%= link_to 'Edit', edit_to_do_item_path(article) %></td>
       <td><%= link_to 'Destroy', to_do_item_path(article),

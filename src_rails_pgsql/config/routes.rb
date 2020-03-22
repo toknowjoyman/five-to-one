@@ -5,5 +5,5 @@ Rails.application.routes.draw do
  resources :to_do_items
  # get 'to_do_items/new'
  # get 'to_do_items/list'
-
+ get 'dashboard/goals25'
 end

@@ -1,9 +1,41 @@
 <p>
-  <strong>Title:</strong>
+  <strong>Task:</strong>
   <%= @to_do_item.title %>
 </p>
+<p>
+  <strong>Goal:</strong>
+  <% if @parent %>
+     <%= @parent.title %>
+  <% else %>
+     <%= @to_do_item.parent %>
+  <% end %>
+</p>
+<p>
+  <strong>Priority:</strong>
+  <%= @to_do_item.priority %>
+</p>
+
 
 <p>
-  <strong>Parent:</strong>
-  <%= @to_do_item.parent %>
+  <strong>Subtasks:</strong>
+
+<% if @children.is_a?(ToDoItem)%>
+    <%= @children.title %>
+  <% end %>
+<% if @children.respond_to?(:each) %>
+  <% @children.each do |subtask| %>
+    <%= subtask.title %>
+  <% end %>
+<% end %>
 </p>
+
+<%= form_with scope: :to_do_item, url: to_do_items_path, local: true do |f| %>
+<strong>New subtask: </strong>
+<p>
+
+  <%= f.text_field :priority, placeholder: "Priority", size: 1 %>
+  <%= f.text_field :title, placeholder: "New task" %>
+  <%= f.hidden_field :parent, value: @to_do_item.id %>
+  <%= f.submit :"+" %>
+</p>
+<% end %>

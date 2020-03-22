@@ -1,0 +1,22 @@
+
+<table>
+
+  <tr>
+    <th>Priority</th>
+    <th>Goals</th>
+    <th colspan="3"></th>
+  </tr>
+
+  <%= form_with scope: :to_do_item, url: to_do_items_path, local: true do |task| %>
+
+    <% 25.times {%>
+      <tr>
+
+          <td><%= task.text_field :priority, placeholder: "0", size: 2 %>
+          <td><%= task.text_field :title %>
+          <td><%= task.submit :"+"  %>
+            <%= task.hidden_field :parent, value: 0 %>
+        
+    <% } %>
+  <% end %>
+</table>

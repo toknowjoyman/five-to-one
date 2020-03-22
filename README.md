@@ -20,12 +20,12 @@ The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in y
    - Change yourself with internal-dialogue ( *gonna make it baby, if we try* )
 
 ## Milestones on the Road Map
-0. [MVP](#milestone-0)
+0. [Prototype](#milestone-0)
    1. [Use Case](#initial-use-case)
       * [User Flow](#user-flow)
    2. [Wireframes](../Design-Plan/Wireframes)
-   3. Rails API [!*Current IP*]
-   4. UI - Web Browser
+   3. [Rails API](../src_rails_pgsql)
+   4. [UI - Web Browser](five21.herokuapp.com) [!*In Progress*]
    5. UI - Native
 1. Features
    * Timeline Text annotation(GUI->M3!)
@@ -85,7 +85,7 @@ Open app -> select Goal -> select task or drill-down –> select subtask -> ACTI
 * subtask
 ### ui
 * create 25 tasks
-   * 25 forms
+   * 25 forms [!*InProgress*]
    * priority numbers forms
    * reset priority numbers
 * dashboard
