@@ -3,6 +3,7 @@
 
 <table>
   <tr>
+    <th>ID</th>
     <th>Parent</th>
     <th>Priority</th>
     <th>Title</th>
@@ -11,6 +12,7 @@
 
   <% @to_do_items.each do |article| %>
     <tr>
+      <td><%= article.id %></td>
       <td><%= article.parent %></td>
       <td><%= article.priority %></td>
       <td><%= article.title %></td>

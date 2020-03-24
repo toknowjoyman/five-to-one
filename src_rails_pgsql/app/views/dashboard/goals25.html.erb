@@ -1,22 +1,20 @@
-
+<!-- <h1> 25 Foreseeable Goals</h1> -->
+<h4> List upto 25 goals you want, need or have to get done in the next few year</h4>
+<!-- <h5>It could be paying off your debts, buying your dream car, or spending more time with your family. </h5> -->
 <table>
 
-  <tr>
+  <!-- <tr>
     <th>Priority</th>
     <th>Goals</th>
     <th colspan="3"></th>
-  </tr>
+  </tr> -->
 
-  <%= form_with scope: :to_do_item, url: to_do_items_path, local: true do |task| %>
-
-    <% 25.times {%>
-      <tr>
-
-          <td><%= task.text_field :priority, placeholder: "0", size: 2 %>
-          <td><%= task.text_field :title %>
-          <td><%= task.submit :"+"  %>
-            <%= task.hidden_field :parent, value: 0 %>
-        
-    <% } %>
+  <%=form_with url:"/to_do_items/create_many", method: :post do %>
+    <% 25.times do |i| %>
+    <p> <%# 5.times do |f| %> <%= text_field_tag(i, nil, placeholder: "Task, to-do, or Goal") %><%# end %> </p>
+    <% end %>
+    <%= hidden_field_tag(:parent, "0") %>
+    <%= submit_tag "Add tasks" %>
   <% end %>
+
 </table>

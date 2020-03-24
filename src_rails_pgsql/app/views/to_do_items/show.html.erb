@@ -6,8 +6,7 @@
   <strong>Goal:</strong>
   <% if @parent %>
      <%= @parent.title %>
-  <% else %>
-     <%= @to_do_item.parent %>
+
   <% end %>
 </p>
 <p>
@@ -16,17 +15,17 @@
 </p>
 
 
-<p>
-  <strong>Subtasks:</strong>
 
-<% if @children.is_a?(ToDoItem)%>
-    <%= @children.title %>
-  <% end %>
-<% if @children.respond_to?(:each) %>
+  <strong>Subtasks:</strong>
+<p>
+<%# if @children.is_a?(ToDoItem)%>
+    <%#= @children.title %>
+  <%# end %>
+<%# if @children.respond_to?(:each) %>
   <% @children.each do |subtask| %>
-    <%= subtask.title %>
+    <p><%= subtask.title %></p>
   <% end %>
-<% end %>
+<% #end %>
 </p>
 
 <%= form_with scope: :to_do_item, url: to_do_items_path, local: true do |f| %>

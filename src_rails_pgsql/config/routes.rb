@@ -6,4 +6,5 @@ Rails.application.routes.draw do
  # get 'to_do_items/new'
  # get 'to_do_items/list'
  get 'dashboard/goals25'
+ post 'to_do_items/create_many'
 end

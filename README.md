@@ -19,6 +19,9 @@ The 5/25 rule by WBCM allows you to focus your thoughts and achieve success in y
    - Important vs. Urgent ( *You get yours baby, I get mine* )
    - Change yourself with internal-dialogue ( *gonna make it baby, if we try* )
 
+   Once referred to as "the app for putting your mind to it"; more appropriately its the app to 'make your ass follow'.
+
+
 ## Milestones on the Road Map
 0. [Prototype](#milestone-0)
    1. [Use Case](#initial-use-case)

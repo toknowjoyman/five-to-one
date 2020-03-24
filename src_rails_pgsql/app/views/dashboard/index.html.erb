@@ -10,7 +10,8 @@
   <%= form.hidden_field :parent, value: "NaN" %>
   <%= form.hidden_field :priority, value: "Nil" %>
   <%= form.text_field :title, placeholder: "New task" %>
-  <%= form.submit :"+" %>
+  <%= @todos
+  form.submit :"+" %>
 </p>
 <% end %>
 
