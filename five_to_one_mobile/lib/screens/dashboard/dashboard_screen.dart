@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../../theme/app_theme.dart';
 import '../../utils/doors_quotes.dart';
+import 'goal_detail_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final List<String> topFiveGoals;
@@ -58,10 +59,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: GoalWheel(
                         goals: widget.topFiveGoals,
                         onGoalTap: (index) {
-                          // TODO: Navigate to goal detail
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Tapped: ${widget.topFiveGoals[index]}'),
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GoalDetailScreen(
+                                goalTitle: widget.topFiveGoals[index],
+                                goalIndex: index,
+                              ),
                             ),
                           );
                         },
