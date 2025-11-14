@@ -1,40 +1,66 @@
-class Task {
+class Item {
   final String id;
   final String userId;
-  final String goalId;
-  final String? parentId; // Self-referential for fractal subtasks
+  final String? parentId; // NULL = root level (life area in V2, goal in V1)
   final String title;
-  final bool isUrgent;
-  final bool isImportant;
   final int position;
+
+  // Optional metadata - used at different levels
+  final int? priority; // 1-5 for top priorities (goals)
+  final bool isAvoided; // True for avoid list (goals)
+  final bool isUrgent; // For tasks (Eisenhower matrix)
+  final bool isImportant; // For tasks (Eisenhower matrix)
+  final String? color; // For life areas (V2)
+  final String? icon; // For life areas (V2)
+
   final DateTime? completedAt;
   final DateTime createdAt;
 
   // For UI - not stored in DB
-  List<Task>? children;
+  List<Item>? children;
+  int? depth; // Calculated from ancestors
 
-  Task({
+  Item({
     required this.id,
     required this.userId,
-    required this.goalId,
     this.parentId,
     required this.title,
+    this.position = 0,
+    this.priority,
+    this.isAvoided = false,
     this.isUrgent = false,
     this.isImportant = false,
-    this.position = 0,
+    this.color,
+    this.icon,
     this.completedAt,
     required this.createdAt,
     this.children,
+    this.depth,
   });
 
+  // Computed properties
   bool get isCompleted => completedAt != null;
   bool get isRoot => parentId == null;
   bool get hasChildren => children != null && children!.isNotEmpty;
+  bool get isTopPriority => priority != null && priority! <= 5;
 
-  // Get color based on urgent/important matrix
+  // Infer type from depth (if provided)
+  ItemType get type {
+    if (depth == null) return ItemType.unknown;
+    switch (depth) {
+      case 0:
+        return ItemType.lifeArea; // V2
+      case 1:
+        return ItemType.goal; // V1 if root, V2 if has parent
+      default:
+        return ItemType.task; // Depth 2+
+    }
+  }
+
+  // Get color based on urgent/important matrix (for tasks)
   int get tagColor {
     if (isUrgent && isImportant) {
-      return 0xFFE74C3C; // Red + Blue = Purple-ish (both)
+      return 0xFFE74C3C; // Red + Blue = Both
     } else if (isUrgent) {
       return 0xFFE74C3C; // Red
     } else if (isImportant) {
@@ -50,16 +76,19 @@ class Task {
     return '';
   }
 
-  factory Task.fromJson(Map<String, dynamic> json) {
-    return Task(
+  factory Item.fromJson(Map<String, dynamic> json) {
+    return Item(
       id: json['id'],
       userId: json['user_id'],
-      goalId: json['goal_id'],
       parentId: json['parent_id'],
       title: json['title'],
+      position: json['position'] ?? 0,
+      priority: json['priority'],
+      isAvoided: json['is_avoided'] ?? false,
       isUrgent: json['is_urgent'] ?? false,
       isImportant: json['is_important'] ?? false,
-      position: json['position'] ?? 0,
+      color: json['color'],
+      icon: json['icon'],
       completedAt: json['completed_at'] != null
           ? DateTime.parse(json['completed_at'])
           : null,
@@ -71,42 +100,61 @@ class Task {
     return {
       'id': id,
       'user_id': userId,
-      'goal_id': goalId,
       'parent_id': parentId,
       'title': title,
+      'position': position,
+      'priority': priority,
+      'is_avoided': isAvoided,
       'is_urgent': isUrgent,
       'is_important': isImportant,
-      'position': position,
+      'color': color,
+      'icon': icon,
       'completed_at': completedAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
     };
   }
 
-  Task copyWith({
+  Item copyWith({
     String? id,
     String? userId,
-    String? goalId,
     String? parentId,
     String? title,
+    int? position,
+    int? priority,
+    bool? isAvoided,
     bool? isUrgent,
     bool? isImportant,
-    int? position,
+    String? color,
+    String? icon,
     DateTime? completedAt,
     DateTime? createdAt,
-    List<Task>? children,
+    List<Item>? children,
+    int? depth,
   }) {
-    return Task(
+    return Item(
       id: id ?? this.id,
       userId: userId ?? this.userId,
-      goalId: goalId ?? this.goalId,
       parentId: parentId ?? this.parentId,
       title: title ?? this.title,
+      position: position ?? this.position,
+      priority: priority ?? this.priority,
+      isAvoided: isAvoided ?? this.isAvoided,
       isUrgent: isUrgent ?? this.isUrgent,
       isImportant: isImportant ?? this.isImportant,
-      position: position ?? this.position,
+      color: color ?? this.color,
+      icon: icon ?? this.icon,
       completedAt: completedAt ?? this.completedAt,
       createdAt: createdAt ?? this.createdAt,
       children: children ?? this.children,
+      depth: depth ?? this.depth,
     );
   }
+}
+
+// Helper enum for UI rendering decisions
+enum ItemType {
+  unknown,
+  lifeArea, // Depth 0 (V2)
+  goal, // Depth 0 (V1) or Depth 1 (V2)
+  task, // Depth 2+
 }

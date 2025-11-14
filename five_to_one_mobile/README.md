@@ -36,8 +36,7 @@ lib/
 ├── theme/
 │   └── app_theme.dart          # Color palette & styling
 ├── models/
-│   ├── goal.dart               # Goal data model
-│   └── task.dart               # Task data model (fractal)
+│   └── item.dart               # Unified fractal model (life areas/goals/tasks)
 ├── screens/
 │   ├── onboarding/
 │   │   ├── hook_screen.dart    # "Five to one, baby"
@@ -94,21 +93,27 @@ flutter build apk
 flutter build appbundle  # For Play Store
 ```
 
-## Data Model (Future)
+## Data Model: Unified Fractal Schema
 
-The app is designed to support future "Life Areas" feature:
+**Key Innovation:** Instead of separate tables for life areas, goals, and tasks, we use **one self-referential table** that represents all hierarchy levels.
 
 ```sql
--- Life Areas (V2)
-life_areas: id, user_id, name, color, icon, position
-
--- Goals (Current + Future)
-goals: id, user_id, life_area_id (nullable), title, priority, is_avoided
-
--- Tasks (Fractal - V2)
-tasks: id, user_id, goal_id, parent_id (self-ref), title,
-       is_urgent, is_important, completed_at
+-- Single table, infinite depth
+items:
+  id, user_id, parent_id (self-referential!),
+  title, position,
+  priority, is_avoided,          -- For goals
+  is_urgent, is_important,        -- For tasks
+  color, icon,                    -- For life areas
+  completed_at, created_at
 ```
+
+**How it works:**
+- `parent_id = NULL` → Root item (Life Area in V2, Goal in V1)
+- `parent_id = some_id` → Child of that item
+- Same structure repeats infinitely: Item → Item → Item → ...
+
+**See [FRACTAL_SCHEMA.md](FRACTAL_SCHEMA.md) for detailed explanation.**
 
 ## Design Philosophy
 
