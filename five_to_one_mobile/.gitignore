@@ -55,3 +55,6 @@ web/manifest.json
 .history
 .svn/
 migrate_working_dir/
+
+# Supabase config (contains API keys)
+# lib/config/supabase_config.dart
