@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'theme/app_theme.dart';
 import 'screens/auth/auth_screen.dart';
+import 'screens/dashboard/simple_task_list.dart';
 import 'screens/onboarding/onboarding_flow.dart';
 import 'screens/goals/goals_input_screen.dart';
 import 'screens/goals/prioritization_screen.dart';
@@ -9,6 +10,7 @@ import 'screens/goals/lockdown_screen.dart';
 import 'screens/dashboard/dashboard_screen.dart';
 import 'services/supabase_service.dart';
 import 'services/items_service.dart';
+import 'services/preferences_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +67,7 @@ class _AppFlowManagerState extends State<AppFlowManager> {
   List<String> _userGoals = [];
   List<String> _rankedGoals = [];
   final _itemsService = ItemsService();
+  final _prefsService = PreferencesService();
 
   @override
   void initState() {
@@ -81,29 +84,11 @@ class _AppFlowManagerState extends State<AppFlowManager> {
       return;
     }
 
-    // User is logged in - check if they have goals
-    try {
-      final goals = await _itemsService.getTopFiveGoals();
-
-      if (goals.isEmpty) {
-        // No goals yet - show onboarding
-        setState(() {
-          _currentScreen = AppScreen.onboarding;
-        });
-      } else {
-        // Has goals - show dashboard
-        setState(() {
-          _rankedGoals = goals.map((g) => g.title).toList();
-          _currentScreen = AppScreen.dashboard;
-        });
-      }
-    } catch (e) {
-      print('Error loading goals: $e');
-      // If error, assume no goals and show onboarding
-      setState(() {
-        _currentScreen = AppScreen.onboarding;
-      });
-    }
+    // User is logged in - show simple task list by default
+    // (Frameworks are opt-in from settings)
+    setState(() {
+      _currentScreen = AppScreen.simpleTaskList;
+    });
   }
 
   void _onAuthenticated() {
@@ -156,6 +141,9 @@ class _AppFlowManagerState extends State<AppFlowManager> {
       case AppScreen.auth:
         return AuthScreen(onAuthenticated: _onAuthenticated);
 
+      case AppScreen.simpleTaskList:
+        return const SimpleTaskList();
+
       case AppScreen.onboarding:
         return OnboardingFlow(onComplete: _onOnboardingComplete);
 
@@ -190,6 +178,7 @@ class _AppFlowManagerState extends State<AppFlowManager> {
 enum AppScreen {
   loading,
   auth,
+  simpleTaskList,
   onboarding,
   goalsInput,
   prioritization,
