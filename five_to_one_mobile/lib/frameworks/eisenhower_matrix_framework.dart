@@ -13,7 +13,8 @@ import '../theme/app_theme.dart';
 /// 3. Urgent & Not Important (Delegate)
 /// 4. Neither (Eliminate)
 class EisenhowerMatrixFramework extends TaskFramework {
-  final _itemsService = ItemsService();
+  ItemsService? _itemsService;
+  ItemsService get itemsService => _itemsService ??= ItemsService();
 
   @override
   String get id => 'eisenhower';
@@ -70,7 +71,7 @@ class EisenhowerMatrixFramework extends TaskFramework {
   @override
   Widget buildQuickInfo(BuildContext context, Item task) {
     return FutureBuilder<List<Item>>(
-      future: _itemsService.getChildren(task.id),
+      future: itemsService.getChildren(task.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const SizedBox.shrink();
@@ -111,7 +112,7 @@ class EisenhowerMatrixFramework extends TaskFramework {
       );
     }).toList();
 
-    await _itemsService.updateItems(updates);
+    await itemsService.updateItems(updates);
   }
 
   @override
@@ -154,7 +155,8 @@ class _EisenhowerSetupFlow extends StatefulWidget {
 class _EisenhowerSetupFlowState extends State<_EisenhowerSetupFlow> {
   late Map<String, bool> _urgentFlags;
   late Map<String, bool> _importantFlags;
-  final _itemsService = ItemsService();
+  ItemsService? _itemsService;
+  ItemsService get itemsService => _itemsService ??= ItemsService();
   bool _isApplying = false;
 
   @override
@@ -385,7 +387,7 @@ class _EisenhowerSetupFlowState extends State<_EisenhowerSetupFlow> {
         );
       }).toList();
 
-      await _itemsService.updateItems(updates);
+      await itemsService.updateItems(updates);
 
       if (mounted) {
         widget.onComplete();
@@ -415,12 +417,13 @@ class _EisenhowerMatrixView extends StatefulWidget {
 }
 
 class _EisenhowerMatrixViewState extends State<_EisenhowerMatrixView> {
-  final _itemsService = ItemsService();
+  ItemsService? _itemsService;
+  ItemsService get itemsService => _itemsService ??= ItemsService();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Item>>(
-      future: _itemsService.getChildren(widget.task.id),
+      future: itemsService.getChildren(widget.task.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());

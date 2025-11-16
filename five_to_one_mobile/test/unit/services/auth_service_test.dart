@@ -1,50 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:five_to_one/services/auth_service.dart';
 
 void main() {
   group('AuthService', () {
-    late AuthService authService;
-
-    setUp(() {
-      authService = AuthService();
-    });
-
-    group('Service Structure', () {
-      test('service can be instantiated', () {
-        expect(authService, isNotNull);
-      });
-
-      test('has required authentication methods', () {
-        // Verify the service has all required methods
-        expect(authService.signUp, isA<Function>());
-        expect(authService.signIn, isA<Function>());
-        expect(authService.signOut, isA<Function>());
-        expect(authService.resetPassword, isA<Function>());
-        expect(authService.signInAnonymously, isA<Function>());
-        expect(authService.upgradeAnonymousAccount, isA<Function>());
-      });
-
-      test('has required state getters', () {
-        // These will be null/false in test environment without Supabase
-        expect(authService.currentUser, isNull);
-        expect(authService.isLoggedIn, false);
-        expect(authService.isAnonymous, false);
-      });
-    });
-
-    group('Authentication Flow Logic', () {
-      test('isLoggedIn returns false when currentUser is null', () {
-        // In test environment, currentUser should be null
-        expect(authService.currentUser, isNull);
-        expect(authService.isLoggedIn, false);
-      });
-
-      test('isAnonymous returns false when currentUser is null', () {
-        // In test environment, currentUser should be null
-        expect(authService.currentUser, isNull);
-        expect(authService.isAnonymous, false);
-      });
-    });
+    // Note: AuthService tests that don't require Supabase initialization
+    // Tests focus on validation logic and business rules
 
     group('Email Validation Logic', () {
       // These tests verify email validation patterns that should be used

@@ -10,7 +10,8 @@ import '../theme/app_theme.dart';
 /// Warren Buffett's prioritization method: Pick your top 5 priorities
 /// and avoid the other 20 until the top 5 are done.
 class BuffettMungerFramework extends TaskFramework {
-  final _itemsService = ItemsService();
+  ItemsService? _itemsService;
+  ItemsService get itemsService => _itemsService ??= ItemsService();
 
   @override
   String get id => 'buffett-munger';
@@ -70,7 +71,7 @@ class BuffettMungerFramework extends TaskFramework {
   Widget buildQuickInfo(BuildContext context, Item task) {
     // TODO: Load children and calculate completion
     return FutureBuilder<List<Item>>(
-      future: _itemsService.getChildren(task.id),
+      future: itemsService.getChildren(task.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const SizedBox.shrink();
@@ -113,7 +114,7 @@ class BuffettMungerFramework extends TaskFramework {
       );
     }).toList();
 
-    await _itemsService.updateItems(updates);
+    await itemsService.updateItems(updates);
   }
 
   @override
@@ -158,7 +159,8 @@ class _BuffettMungerSetupFlow extends StatefulWidget {
 
 class _BuffettMungerSetupFlowState extends State<_BuffettMungerSetupFlow> {
   late List<Item> _rankedChildren;
-  final _itemsService = ItemsService();
+  ItemsService? _itemsService;
+  ItemsService get itemsService => _itemsService ??= ItemsService();
   bool _isApplying = false;
 
   @override
@@ -338,7 +340,7 @@ class _BuffettMungerSetupFlowState extends State<_BuffettMungerSetupFlow> {
         );
       }).toList();
 
-      await _itemsService.updateItems(updates);
+      await itemsService.updateItems(updates);
 
       if (mounted) {
         widget.onComplete();
@@ -368,12 +370,13 @@ class _BuffettMungerView extends StatefulWidget {
 }
 
 class _BuffettMungerViewState extends State<_BuffettMungerView> {
-  final _itemsService = ItemsService();
+  ItemsService? _itemsService;
+  ItemsService get itemsService => _itemsService ??= ItemsService();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Item>>(
-      future: _itemsService.getChildren(widget.task.id),
+      future: itemsService.getChildren(widget.task.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());

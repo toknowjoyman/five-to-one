@@ -13,11 +13,9 @@ class MockPostgrestTransformBuilder extends Mock implements PostgrestTransformBu
 
 void main() {
   group('ItemsService', () {
-    late ItemsService service;
     late DateTime testDate;
 
     setUp(() {
-      service = ItemsService();
       testDate = DateTime.parse('2024-01-01T00:00:00Z');
     });
 
