@@ -32,11 +32,23 @@ CREATE TABLE items (
   title TEXT NOT NULL,
   position INT DEFAULT 0,
 
+  -- Framework system - which frameworks organize this item's children
+  framework_ids TEXT[],   -- Array of framework IDs: ['buffett-munger', 'eisenhower']
+
   -- Optional metadata (used at different hierarchy levels)
-  priority INT,           -- Used for goals: 1-5 for top priorities, NULL for avoid list
-  is_avoided BOOLEAN DEFAULT FALSE,  -- Used for goals: true for the 20 avoided items
-  is_urgent BOOLEAN DEFAULT FALSE,   -- Used for tasks: Eisenhower matrix
-  is_important BOOLEAN DEFAULT FALSE, -- Used for tasks: Eisenhower matrix
+  priority INT,           -- Buffett-Munger: 1-5 for top priorities, NULL for avoid list
+  is_avoided BOOLEAN DEFAULT FALSE,  -- Buffett-Munger: true for the 20 avoided items
+  is_urgent BOOLEAN DEFAULT FALSE,   -- Eisenhower: urgent tasks
+  is_important BOOLEAN DEFAULT FALSE, -- Eisenhower: important tasks
+
+  -- Time Blocking framework
+  scheduled_for TIMESTAMP,  -- When this task is scheduled
+  duration_minutes INT,     -- How long this task should take
+
+  -- Kanban framework
+  kanban_column TEXT,      -- Column: 'todo', 'in-progress', 'done'
+  column_position INT,     -- Position within the column
+
   color TEXT,             -- Used for life areas (V2): hex color code
   icon TEXT,              -- Used for life areas (V2): icon identifier
 
@@ -51,6 +63,8 @@ CREATE INDEX idx_items_user ON items(user_id);
 CREATE INDEX idx_items_parent ON items(parent_id);
 CREATE INDEX idx_items_priority ON items(priority) WHERE priority IS NOT NULL;
 CREATE INDEX idx_items_completed ON items(completed_at) WHERE completed_at IS NOT NULL;
+CREATE INDEX idx_items_framework ON items USING GIN(framework_ids); -- Array index for framework queries
+CREATE INDEX idx_items_scheduled ON items(scheduled_for) WHERE scheduled_for IS NOT NULL;
 
 -- Updated timestamp trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -91,10 +105,15 @@ RETURNS TABLE (
   parent_id UUID,
   title TEXT,
   position INT,
+  framework_ids TEXT[],
   priority INT,
   is_avoided BOOLEAN,
   is_urgent BOOLEAN,
   is_important BOOLEAN,
+  scheduled_for TIMESTAMP,
+  duration_minutes INT,
+  kanban_column TEXT,
+  column_position INT,
   color TEXT,
   icon TEXT,
   completed_at TIMESTAMP,
@@ -119,8 +138,9 @@ RETURNS TABLE (
     INNER JOIN descendants d ON i.parent_id = d.id
   )
   SELECT
-    id, user_id, parent_id, title, position,
+    id, user_id, parent_id, title, position, framework_ids,
     priority, is_avoided, is_urgent, is_important,
+    scheduled_for, duration_minutes, kanban_column, column_position,
     color, icon, completed_at, created_at, depth
   FROM descendants;
 $$ LANGUAGE SQL STABLE;
@@ -133,10 +153,15 @@ RETURNS TABLE (
   parent_id UUID,
   title TEXT,
   position INT,
+  framework_ids TEXT[],
   priority INT,
   is_avoided BOOLEAN,
   is_urgent BOOLEAN,
   is_important BOOLEAN,
+  scheduled_for TIMESTAMP,
+  duration_minutes INT,
+  kanban_column TEXT,
+  column_position INT,
   color TEXT,
   icon TEXT,
   completed_at TIMESTAMP,
@@ -161,8 +186,9 @@ RETURNS TABLE (
     INNER JOIN ancestors a ON i.id = a.parent_id
   )
   SELECT
-    id, user_id, parent_id, title, position,
+    id, user_id, parent_id, title, position, framework_ids,
     priority, is_avoided, is_urgent, is_important,
+    scheduled_for, duration_minutes, kanban_column, column_position,
     color, icon, completed_at, created_at, depth
   FROM ancestors
   ORDER BY depth DESC;

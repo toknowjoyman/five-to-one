@@ -11,6 +11,7 @@ import 'screens/dashboard/dashboard_screen.dart';
 import 'services/supabase_service.dart';
 import 'services/items_service.dart';
 import 'services/preferences_service.dart';
+import 'frameworks/framework_registry.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +23,9 @@ void main() async {
     print('Supabase initialization error: $e');
     print('Make sure to configure lib/config/supabase_config.dart');
   }
+
+  // Initialize frameworks
+  initializeFrameworks();
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(

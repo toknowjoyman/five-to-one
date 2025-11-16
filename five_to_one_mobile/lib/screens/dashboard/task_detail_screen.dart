@@ -3,42 +3,49 @@ import '../../theme/app_theme.dart';
 import '../../models/item.dart';
 import '../../services/items_service.dart';
 import '../../services/supabase_service.dart';
-import 'task_detail_screen.dart';
+import '../../frameworks/framework_registry.dart';
+import '../../frameworks/task_framework.dart';
+import '../../widgets/framework_picker.dart';
 import 'package:uuid/uuid.dart';
 
-/// Simple task list - the default view with no frameworks enabled
+/// Task detail screen with framework support
 ///
-/// Shows all root tasks in a clean list.
-/// Users can add tasks, drill into subtasks, complete items.
-class SimpleTaskList extends StatefulWidget {
-  const SimpleTaskList({super.key});
+/// Shows a task's children/subtasks and allows applying frameworks
+/// to organize them. This screen replaces the old GoalDetailScreen.
+class TaskDetailScreen extends StatefulWidget {
+  final Item task;
+
+  const TaskDetailScreen({
+    super.key,
+    required this.task,
+  });
 
   @override
-  State<SimpleTaskList> createState() => _SimpleTaskListState();
+  State<TaskDetailScreen> createState() => _TaskDetailScreenState();
 }
 
-class _SimpleTaskListState extends State<SimpleTaskList> {
+class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final _itemsService = ItemsService();
   final _taskController = TextEditingController();
   final _uuid = const Uuid();
-  List<Item> _tasks = [];
+  List<Item> _children = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    _loadChildren();
   }
 
-  Future<void> _loadTasks() async {
+  Future<void> _loadChildren() async {
     try {
-      final tasks = await _itemsService.getRootItems();
+      final children = await _itemsService.getChildren(widget.task.id);
       setState(() {
-        _tasks = tasks;
+        _children = children;
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading tasks: $e');
+      print('Error loading children: $e');
       setState(() {
         _isLoading = false;
       });
@@ -52,16 +59,16 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
       final newTask = Item(
         id: _uuid.v4(),
         userId: SupabaseService.userId,
-        parentId: null, // Root task
+        parentId: widget.task.id,
         title: _taskController.text.trim(),
-        position: _tasks.length,
+        position: _children.length,
         createdAt: DateTime.now(),
       );
 
       final created = await _itemsService.createItem(newTask);
 
       setState(() {
-        _tasks.add(created);
+        _children.add(created);
         _taskController.clear();
       });
     } catch (e) {
@@ -79,9 +86,9 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
           : await _itemsService.completeItem(task.id);
 
       setState(() {
-        final index = _tasks.indexWhere((t) => t.id == task.id);
+        final index = _children.indexWhere((t) => t.id == task.id);
         if (index != -1) {
-          _tasks[index] = updated;
+          _children[index] = updated;
         }
       });
     } catch (e) {
@@ -93,139 +100,160 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
     try {
       await _itemsService.deleteItem(task.id);
       setState(() {
-        _tasks.removeWhere((t) => t.id == task.id);
+        _children.removeWhere((t) => t.id == task.id);
       });
     } catch (e) {
       print('Error deleting task: $e');
     }
   }
 
-  void _openTaskDetail(Item task) {
+  void _navigateToSubtasks(Item task) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => TaskDetailScreen(task: task),
       ),
-    ).then((_) => _loadTasks()); // Refresh on return
+    ).then((_) => _loadChildren()); // Refresh on return
+  }
+
+  void _showFrameworkPicker() {
+    FrameworkPicker.show(
+      context,
+      widget.task,
+      _children,
+      (framework) {
+        _applyFramework(framework);
+      },
+    );
+  }
+
+  Future<void> _applyFramework(TaskFramework framework) async {
+    try {
+      // Add framework to task
+      await _itemsService.addFramework(widget.task.id, framework.id);
+
+      // Show setup flow
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => framework.buildSetupFlow(
+              context,
+              widget.task,
+              _children,
+              () {
+                // On complete, go back and reload
+                Navigator.pop(context);
+                _loadChildren();
+                setState(() {});
+              },
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error applying framework: $e')),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Tasks'),
+        title: Text(widget.task.title),
         actions: [
+          // Framework button
           IconButton(
             icon: const Icon(Icons.tune),
-            tooltip: 'Frameworks',
-            onPressed: () {
-              // TODO: Navigate to frameworks screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Frameworks screen coming soon!')),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
+            tooltip: 'Apply Framework',
+            onPressed: _showFrameworkPicker,
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Empty state or task list
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _tasks.isEmpty
-                    ? _buildEmptyState()
-                    : _buildTaskList(),
-          ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                // Framework badges (if any frameworks applied)
+                if (widget.task.frameworkIds.isNotEmpty)
+                  _buildFrameworkBadges(),
 
-          // Add task input
-          _buildAddTaskInput(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.task_alt,
-              size: 80,
-              color: AppTheme.textSecondary.withOpacity(0.5),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'No tasks yet',
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                    fontSize: 24,
-                  ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Add your first task below to get started',
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.cardBackground.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: AppTheme.primaryPurple.withOpacity(0.3),
+                // Content area
+                Expanded(
+                  child: _buildContent(),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.tips_and_updates,
-                        color: AppTheme.accentOrange,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Tip',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: AppTheme.accentOrange,
-                            ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Every task can have subtasks. Break big goals into smaller, actionable steps.',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
+
+                // Add task input
+                _buildAddTaskInput(),
+              ],
             ),
-          ],
-        ),
+    );
+  }
+
+  Widget _buildFrameworkBadges() {
+    final frameworks = FrameworkRegistry.getByIds(widget.task.frameworkIds);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: AppTheme.cardBackground.withOpacity(0.5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Active Frameworks:',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppTheme.textSecondary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            children: frameworks.map((framework) {
+              return Chip(
+                avatar: Icon(
+                  framework.icon,
+                  size: 16,
+                  color: framework.color,
+                ),
+                label: Text(framework.shortName),
+                backgroundColor: framework.color.withOpacity(0.1),
+                side: BorderSide(color: framework.color),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildTaskList() {
+  Widget _buildContent() {
+    // If task has frameworks, show framework views
+    if (widget.task.frameworkIds.isNotEmpty) {
+      final framework = FrameworkRegistry.get(widget.task.frameworkIds.first);
+      if (framework != null) {
+        return framework.buildSubtaskView(context, widget.task);
+      }
+    }
+
+    // Default: simple list view
+    return _buildSimpleListView();
+  }
+
+  Widget _buildSimpleListView() {
+    if (_children.isEmpty) {
+      return _buildEmptyState();
+    }
+
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _tasks.length,
+      itemCount: _children.length,
       itemBuilder: (context, index) {
-        final task = _tasks[index];
+        final task = _children[index];
 
         return Dismissible(
           key: Key(task.id),
@@ -266,6 +294,75 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
           child: _buildTaskCard(task),
         );
       },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.task_alt,
+              size: 80,
+              color: AppTheme.textSecondary.withOpacity(0.5),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No subtasks yet',
+              style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                    fontSize: 24,
+                  ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Add a subtask below to break down this task',
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.cardBackground.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppTheme.primaryPurple.withOpacity(0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.tips_and_updates,
+                        color: AppTheme.accentOrange,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Tip',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.accentOrange,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Once you have 5+ subtasks, try applying a framework to organize them!',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -324,7 +421,7 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
           Icons.chevron_right,
           color: AppTheme.textSecondary,
         ),
-        onTap: () => _openTaskDetail(task),
+        onTap: () => _navigateToSubtasks(task),
       ),
     );
   }
@@ -349,7 +446,7 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
               child: TextField(
                 controller: _taskController,
                 decoration: const InputDecoration(
-                  hintText: 'Add a task...',
+                  hintText: 'Add a subtask...',
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 12,
