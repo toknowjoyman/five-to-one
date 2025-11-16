@@ -181,7 +181,8 @@ void main() {
 
 bool _isValidEmail(String email) {
   if (email.isEmpty) return false;
-  final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+  // Updated regex to support + character in email (e.g., user+tag@example.com)
+  final emailRegex = RegExp(r'^[\w\-\.\+]+@([\w-]+\.)+[\w-]{2,4}$');
   return emailRegex.hasMatch(email);
 }
 
@@ -195,7 +196,8 @@ bool _validateSignUpInput(String email, String password) {
 }
 
 bool _validateSignInInput(String email, String password) {
-  return email.isNotEmpty && password.isNotEmpty;
+  // SignIn should also validate email format for better UX
+  return _isValidEmail(email) && password.isNotEmpty;
 }
 
 bool _validateUpgradeInput(String email, String password) {
