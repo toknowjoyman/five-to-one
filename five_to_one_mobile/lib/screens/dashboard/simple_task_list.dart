@@ -4,6 +4,7 @@ import '../../models/item.dart';
 import '../../services/items_service.dart';
 import '../../services/supabase_service.dart';
 import '../../frameworks/framework_registry.dart';
+import '../../widgets/framework_picker.dart';
 import 'task_detail_screen.dart';
 import 'package:uuid/uuid.dart';
 
