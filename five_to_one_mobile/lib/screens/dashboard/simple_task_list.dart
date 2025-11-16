@@ -527,7 +527,7 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
     String detailText = framework.shortName;
 
     // Buffett-Munger 5/25 - show priority or avoided status
-    if (framework.id == 'buffett_munger') {
+    if (framework.id == 'buffett-munger') {
       if (task.isAvoided) {
         detailText = 'Avoided';
       } else if (task.priority != null && task.priority! > 0) {

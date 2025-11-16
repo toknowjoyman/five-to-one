@@ -797,7 +797,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     : AppTheme.textPrimary,
               ),
         ),
-        subtitle: task.frameworkIds.isNotEmpty ? _buildFrameworkBadge(task) : null,
+        subtitle: (task.frameworkIds.isNotEmpty || widget.task.frameworkIds.isNotEmpty)
+            ? _buildFrameworkBadge(task)
+            : null,
         trailing: const Icon(
           Icons.chevron_right,
           color: AppTheme.textSecondary,
@@ -809,7 +811,11 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildFrameworkBadge(Item task) {
-    final frameworks = FrameworkRegistry.getByIds(task.frameworkIds);
+    // Use task's frameworks if it has any, otherwise use parent's frameworks
+    final frameworkIds = task.frameworkIds.isNotEmpty
+        ? task.frameworkIds
+        : widget.task.frameworkIds;
+    final frameworks = FrameworkRegistry.getByIds(frameworkIds);
     if (frameworks.isEmpty) return const SizedBox.shrink();
 
     return Padding(
@@ -828,7 +834,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     String detailText = framework.shortName;
 
     // Buffett-Munger 5/25 - show priority or avoided status
-    if (framework.id == 'buffett_munger') {
+    if (framework.id == 'buffett-munger') {
       if (task.isAvoided) {
         detailText = 'Avoided';
       } else if (task.priority != null && task.priority! > 0) {
