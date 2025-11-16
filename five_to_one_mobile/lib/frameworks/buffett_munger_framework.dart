@@ -4,6 +4,7 @@ import '../models/item.dart';
 import '../services/items_service.dart';
 import '../widgets/pentagon_wheel.dart';
 import '../theme/app_theme.dart';
+import '../screens/dashboard/task_detail_screen.dart';
 
 /// Buffett-Munger 5/25 Framework
 ///
@@ -394,7 +395,10 @@ class _BuffettMungerViewState extends State<_BuffettMungerView> {
             // Pentagon wheel for top 5
             if (topFive.isNotEmpty) ...[
               const SizedBox(height: 24),
-              PentagonWheel(goals: topFive),
+              PentagonWheel(
+                goals: topFive,
+                onGoalTap: (goal) => _navigateToSubtasks(context, goal),
+              ),
               const SizedBox(height: 24),
             ],
 
@@ -431,6 +435,15 @@ class _BuffettMungerViewState extends State<_BuffettMungerView> {
     );
   }
 
+  void _navigateToSubtasks(BuildContext context, Item task) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TaskDetailScreen(task: task),
+      ),
+    );
+  }
+
   void _showAvoidList(BuildContext context, List<Item> avoidList) {
     showModalBottomSheet(
       context: context,
@@ -462,6 +475,14 @@ class _BuffettMungerViewState extends State<_BuffettMungerView> {
                       item.title,
                       style: const TextStyle(color: AppTheme.textSecondary),
                     ),
+                    trailing: const Icon(
+                      Icons.chevron_right,
+                      color: AppTheme.textSecondary,
+                    ),
+                    onTap: () {
+                      Navigator.pop(context); // Close the bottom sheet
+                      _navigateToSubtasks(context, item);
+                    },
                   );
                 },
               ),

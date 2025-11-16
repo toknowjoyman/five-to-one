@@ -30,6 +30,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final _uuid = const Uuid();
   List<Item> _children = [];
   bool _isLoading = true;
+  bool _useFrameworkView = true; // Toggle between framework view and list view
 
   @override
   void initState() {
@@ -109,37 +110,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Future<void> _showEditTaskDialog(Item task) async {
     final controller = TextEditingController(text: task.title);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Task'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Task Title',
-            hintText: 'Enter task title',
+    try {
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Edit Task'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Task Title',
+              hintText: 'Enter task title',
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
           ),
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
+      );
 
-    if (result != null && result.isNotEmpty && result != task.title) {
-      await _updateTask(task, result);
+      if (result != null && result.isNotEmpty && result != task.title) {
+        await _updateTask(task, result);
+      }
+    } finally {
+      // Dispose controller after the frame completes to avoid disposal during animation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
-
-    controller.dispose();
   }
 
   Future<void> _updateTask(Item task, String newTitle) async {
@@ -258,37 +264,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
   Future<void> _showEditTitleDialog() async {
     final controller = TextEditingController(text: widget.task.title);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Task'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Task Title',
-            hintText: 'Enter task title',
+    try {
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Edit Task'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Task Title',
+              hintText: 'Enter task title',
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
           ),
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
+      );
 
-    if (result != null && result.isNotEmpty && result != widget.task.title) {
-      await _updateTaskTitle(result);
+      if (result != null && result.isNotEmpty && result != widget.task.title) {
+        await _updateTaskTitle(result);
+      }
+    } finally {
+      // Dispose controller after the frame completes to avoid disposal during animation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
-
-    controller.dispose();
   }
 
   Future<void> _updateTaskTitle(String newTitle) async {
@@ -389,9 +400,25 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 _showEditTitleDialog();
               } else if (value == 'delete') {
                 _confirmDeleteCurrentTask();
+              } else if (value == 'toggle_view') {
+                setState(() {
+                  _useFrameworkView = !_useFrameworkView;
+                });
               }
             },
             itemBuilder: (context) => [
+              // View switcher (only show if framework is active)
+              if (widget.task.frameworkIds.isNotEmpty)
+                PopupMenuItem(
+                  value: 'toggle_view',
+                  child: Row(
+                    children: [
+                      Icon(_useFrameworkView ? Icons.list : Icons.filter_5),
+                      const SizedBox(width: 12),
+                      Text(_useFrameworkView ? 'Switch to List View' : 'Switch to BM View'),
+                    ],
+                  ),
+                ),
               const PopupMenuItem(
                 value: 'edit',
                 child: Row(
@@ -558,8 +585,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildContent() {
-    // If task has frameworks, show framework views
-    if (widget.task.frameworkIds.isNotEmpty) {
+    // If task has frameworks and framework view is enabled, show framework views
+    if (widget.task.frameworkIds.isNotEmpty && _useFrameworkView) {
       final framework = FrameworkRegistry.get(widget.task.frameworkIds.first);
       if (framework != null) {
         return framework.buildSubtaskView(context, widget.task);
