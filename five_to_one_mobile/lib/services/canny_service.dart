@@ -14,7 +14,7 @@ class CannyService {
   static Future<bool> openFeedback() async {
     if (!CannyConfig.isConfigured) {
       throw Exception(
-        'Canny is not configured. Please set CANNY_SUBDOMAIN and CANNY_BOARD_TOKEN',
+        'Canny is not configured. Please set CANNY_SUBDOMAIN',
       );
     }
 
@@ -32,31 +32,10 @@ class CannyService {
     }
   }
 
-  /// Build Canny URL with user information for SSO
-  /// This allows Canny to identify the user and show their feedback history
+  /// Build Canny URL
+  /// Simply opens the public feedback board
   static String _buildCannyUrl() {
-    final baseUrl = CannyConfig.widgetUrl;
-
-    // Try to get user information for better UX
-    final user = AuthService().currentUser;
-
-    if (user != null) {
-      // Add user info as query parameters for better UX
-      // Canny will recognize the user if they're logged in
-      final params = {
-        'user_email': user.email ?? '',
-        'user_id': user.id,
-      };
-
-      final queryString = params.entries
-          .where((e) => e.value.isNotEmpty)
-          .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
-          .join('&');
-
-      return '$baseUrl${baseUrl.contains('?') ? '&' : '?'}$queryString';
-    }
-
-    return baseUrl;
+    return CannyConfig.feedbackUrl;
   }
 
   /// Check if Canny is properly configured
