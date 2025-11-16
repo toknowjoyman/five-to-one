@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
-import '../../services/canny_service.dart';
 import '../../config/canny_config.dart';
+import '../../widgets/canny_feedback_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -190,20 +190,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leading: const Icon(Icons.feedback_outlined),
               title: const Text('Send Feedback'),
               subtitle: const Text('Share feedback, request features, report bugs'),
-              trailing: const Icon(Icons.open_in_new, size: 16),
               onTap: () async {
-                try {
-                  await CannyService.openFeedback();
-                } catch (e) {
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Could not open feedback: $e'),
-                        backgroundColor: AppTheme.urgentRed,
-                      ),
-                    );
-                  }
-                }
+                await CannyFeedbackDialog.show(context);
               },
             )
           else
