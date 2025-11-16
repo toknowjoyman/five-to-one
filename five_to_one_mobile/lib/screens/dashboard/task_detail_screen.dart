@@ -30,6 +30,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   final _uuid = const Uuid();
   List<Item> _children = [];
   bool _isLoading = true;
+  bool _useFrameworkView = true; // Toggle between framework view and list view
 
   @override
   void initState() {
@@ -457,6 +458,24 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               ),
               Row(
                 children: [
+                  // View switcher button
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _useFrameworkView = !_useFrameworkView;
+                      });
+                    },
+                    icon: Icon(
+                      _useFrameworkView ? Icons.list : Icons.filter_5,
+                      size: 16,
+                    ),
+                    label: Text(_useFrameworkView ? 'List View' : 'BM View'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.accentOrange,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
                   // Change framework button
                   TextButton.icon(
                     onPressed: _showFrameworkPicker,
@@ -558,8 +577,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   }
 
   Widget _buildContent() {
-    // If task has frameworks, show framework views
-    if (widget.task.frameworkIds.isNotEmpty) {
+    // If task has frameworks and framework view is enabled, show framework views
+    if (widget.task.frameworkIds.isNotEmpty && _useFrameworkView) {
       final framework = FrameworkRegistry.get(widget.task.frameworkIds.first);
       if (framework != null) {
         return framework.buildSubtaskView(context, widget.task);
