@@ -7,4 +7,5 @@ Rails.application.routes.draw do
  # get 'to_do_items/list'
  get 'dashboard/goals25'
  post 'to_do_items/create_many'
+ post 'to_do_items/update_priorities'
 end

@@ -51,4 +51,12 @@ p params
     to_do_item = ToDoItem.insert({title: params[:title], created_at: Time.now, updated_at: Time.now})
   end
 
+  def update_priorities
+    params[:tasks].each_with_index do |id, index|
+      ToDoItem.where(id: id).update_all(priority: index + 1)
+    end
+
+    head :ok
+  end
+
 end

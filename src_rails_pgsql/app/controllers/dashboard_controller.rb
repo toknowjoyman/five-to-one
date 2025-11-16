@@ -5,8 +5,8 @@ class DashboardController < ApplicationController
     # nontasks button
 
 
-    # 5 goals
-    @to_do_items = ToDoItem.all
+    # 5 goals - ordered by priority
+    @to_do_items = ToDoItem.order(:priority)
 
     # new task
     @to_do_item = ToDoItem.new

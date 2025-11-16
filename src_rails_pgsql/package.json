@@ -1,5 +1,7 @@
 {
   "name": "src_rails_pgsql",
   "private": true,
-  "dependencies": {}
+  "dependencies": {
+    "sortablejs": "^1.15.0"
+  }
 }

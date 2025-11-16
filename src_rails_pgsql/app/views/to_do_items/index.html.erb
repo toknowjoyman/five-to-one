@@ -1,26 +1,70 @@
 <h1>Listing todo items</h1>
 <%= link_to 'New To Do', new_to_do_item_path %>
 
-<table>
-  <tr>
-    <th>ID</th>
-    <th>Parent</th>
-    <th>Priority</th>
-    <th>Title</th>
-    <th colspan="3"></th>
-  </tr>
+<p><em>Drag and drop rows to reorder tasks</em></p>
 
-  <% @to_do_items.each do |article| %>
+<table id="sortable-tasks">
+  <thead>
     <tr>
-      <td><%= article.id %></td>
-      <td><%= article.parent %></td>
-      <td><%= article.priority %></td>
-      <td><%= article.title %></td>
-      <td><%= link_to 'Show', to_do_item_path(article) %></td>
-      <td><%= link_to 'Edit', edit_to_do_item_path(article) %></td>
-      <td><%= link_to 'Destroy', to_do_item_path(article),
-              method: :delete,
-              data: { confirm: 'Are you sure?' } %></td>
+      <th>☰</th>
+      <th>ID</th>
+      <th>Parent</th>
+      <th>Priority</th>
+      <th>Title</th>
+      <th colspan="3"></th>
     </tr>
-  <% end %>
+  </thead>
+  <tbody id="tasks-tbody">
+    <% @to_do_items.order(:priority).each do |article| %>
+      <tr data-id="<%= article.id %>" class="sortable-row">
+        <td class="drag-handle" style="cursor: move;">☰</td>
+        <td><%= article.id %></td>
+        <td><%= article.parent %></td>
+        <td><%= article.priority %></td>
+        <td><%= article.title %></td>
+        <td><%= link_to 'Show', to_do_item_path(article) %></td>
+        <td><%= link_to 'Edit', edit_to_do_item_path(article) %></td>
+        <td><%= link_to 'Destroy', to_do_item_path(article),
+                method: :delete,
+                data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
 </table>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var tbody = document.getElementById('tasks-tbody');
+    if (tbody) {
+      var sortable = Sortable.create(tbody, {
+        animation: 150,
+        handle: '.drag-handle',
+        onEnd: function(evt) {
+          var taskIds = [];
+          var rows = tbody.querySelectorAll('tr[data-id]');
+          rows.forEach(function(row) {
+            taskIds.push(row.getAttribute('data-id'));
+          });
+
+          fetch('/to_do_items/update_priorities', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ tasks: taskIds })
+          })
+          .then(response => {
+            if (response.ok) {
+              console.log('Priorities updated successfully');
+              // Optionally reload the page to see updated priorities
+              location.reload();
+            }
+          })
+          .catch(error => console.error('Error updating priorities:', error));
+        }
+      });
+    }
+  });
+</script>
