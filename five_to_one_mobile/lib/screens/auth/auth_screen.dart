@@ -35,19 +35,39 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       if (_isLogin) {
-        await _authService.signIn(
+        final response = await _authService.signIn(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
         );
-      } else {
-        await _authService.signUp(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
-      }
 
-      // Auth successful
-      widget.onAuthenticated();
+        if (response.user != null) {
+          // Login successful
+          widget.onAuthenticated();
+        }
+      } else {
+        final response = await _authService.signUp(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        // Check if email confirmation is required
+        if (response.user != null && response.user!.emailConfirmedAt == null) {
+          // Email confirmation required
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'Please check your email to confirm your account, then sign in.';
+          });
+        } else if (response.user != null) {
+          // Signup successful without confirmation
+          widget.onAuthenticated();
+        } else {
+          // Unexpected case
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'Signup failed. Please try again.';
+          });
+        }
+      }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString().replaceAll('Exception: ', '');
