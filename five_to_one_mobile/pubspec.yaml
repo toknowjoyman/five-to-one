@@ -1,0 +1,47 @@
+name: five_to_one
+description: Warren Buffett's 5/25 prioritization method - with attitude
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  provider: ^6.1.1
+
+  # Backend
+  supabase_flutter: ^2.0.0
+
+  # UI & Animations
+  flutter_animate: ^4.3.0
+  confetti: ^0.7.0
+
+  # Storage
+  shared_preferences: ^2.2.2
+
+  # Utilities
+  uuid: ^4.2.0
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/fonts/
+
+  # fonts:
+  #   - family: CustomFont
+  #     fonts:
+  #       - asset: assets/fonts/CustomFont-Regular.ttf
+  #       - asset: assets/fonts/CustomFont-Bold.ttf
+  #         weight: 700
