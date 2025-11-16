@@ -49,7 +49,31 @@ test/
 
 ## Running Tests
 
-### Run All Tests
+### 🎯 Quick Start (With Failure Summary)
+
+For easier debugging, use one of these test runners that summarize failures at the bottom:
+
+**Option 1: Bash Script (macOS/Linux)**
+```bash
+./run_tests.sh                          # Run all tests
+./run_tests.sh test/unit/models/item_test.dart  # Run specific file
+```
+
+**Option 2: Python Script (Cross-platform)**
+```bash
+python3 test_runner.py                  # Run all tests
+python3 test_runner.py test/unit/models/item_test.dart  # Run specific file
+```
+
+**Option 3: Simple Output Redirect**
+```bash
+flutter test 2>&1 | tee test_output.txt
+# Failures will be in test_output.txt
+```
+
+These scripts will show a "COPY HERE" section at the bottom with all failures summarized for easy debugging.
+
+### Run All Tests (Standard)
 
 ```bash
 cd five_to_one_mobile
