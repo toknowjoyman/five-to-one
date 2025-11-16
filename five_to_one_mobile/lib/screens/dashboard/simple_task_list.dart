@@ -7,6 +7,7 @@ import '../../services/auth_service.dart';
 import '../../frameworks/framework_registry.dart';
 import '../../widgets/framework_picker.dart';
 import 'task_detail_screen.dart';
+import '../settings/settings_screen.dart';
 import 'package:uuid/uuid.dart';
 
 /// Simple task list - the default view with no frameworks enabled
@@ -104,6 +105,73 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
     }
   }
 
+  Future<void> _showEditTaskDialog(Item task) async {
+    final controller = TextEditingController(text: task.title);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Task'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Task Title',
+            hintText: 'Enter task title',
+          ),
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty && result != task.title) {
+      await _updateTask(task, result);
+    }
+
+    controller.dispose();
+  }
+
+  Future<void> _updateTask(Item task, String newTitle) async {
+    try {
+      final updated = task.copyWith(title: newTitle);
+      await _itemsService.updateItem(updated);
+
+      setState(() {
+        final index = _tasks.indexWhere((t) => t.id == task.id);
+        if (index != -1) {
+          _tasks[index] = updated;
+        }
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task updated'),
+            backgroundColor: AppTheme.successGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating task: $e'),
+            backgroundColor: AppTheme.urgentRed,
+          ),
+        );
+      }
+    }
+  }
+
   void _openTaskDetail(Item task) {
     Navigator.push(
       context,
@@ -174,7 +242,12 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // TODO: Navigate to settings
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
             },
           ),
         ],
@@ -267,9 +340,10 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
   }
 
   Widget _buildTaskList() {
-    return ListView.builder(
+    return ReorderableListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: _tasks.length,
+      onReorder: _handleReorder,
       itemBuilder: (context, index) {
         final task = _tasks[index];
 
@@ -341,6 +415,31 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
     );
   }
 
+  Future<void> _handleReorder(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    setState(() {
+      final task = _tasks.removeAt(oldIndex);
+      _tasks.insert(newIndex, task);
+    });
+
+    // Update positions in database
+    final positionUpdates = <String, int>{};
+    for (int i = 0; i < _tasks.length; i++) {
+      positionUpdates[_tasks[i].id] = i;
+    }
+
+    try {
+      await _itemsService.updatePositions(positionUpdates);
+    } catch (e) {
+      print('Error updating positions: $e');
+      // Reload to restore correct order
+      _loadTasks();
+    }
+  }
+
   Widget _buildTaskCard(Item task) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -398,6 +497,7 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
           color: AppTheme.textSecondary,
         ),
         onTap: () => _openTaskDetail(task),
+        onLongPress: () => _showEditTaskDialog(task),
       ),
     );
   }
