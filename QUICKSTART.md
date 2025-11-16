@@ -1,11 +1,12 @@
 # Quick Start Guide - Deploy to Render.io
 
-Get your Five to One app running on Render.io in under 15 minutes!
+Get your Five to One app running on Render.io in under 20 minutes!
 
 ## Prerequisites
 
 - Supabase account (free): https://supabase.com
 - Render account (free): https://render.com
+- Canny account (free): https://canny.io
 - GitHub account
 
 ---
@@ -27,21 +28,35 @@ flutter run -d chrome
 
 ---
 
-## Step 2: Set Up Supabase (5 minutes)
+## Step 2: Set Up Supabase (3 minutes)
 
 1. **Create Project**: https://app.supabase.com → New Project
-2. **Run Migrations**:
+2. **Run Migration**:
    - Go to SQL Editor
    - Copy & run `five_to_one_mobile/supabase_schema.sql`
-   - Copy & run `five_to_one_mobile/supabase_feedback_schema.sql`
 3. **Get Credentials**:
    - Settings → API
    - Copy Project URL and anon key
-   - Save them for Step 3
+   - Save them for Step 4
 
 ---
 
-## Step 3: Deploy to Render (5 minutes)
+## Step 3: Set Up Canny (5 minutes)
+
+1. **Create Account**: https://canny.io → Sign up
+2. **Create Board**:
+   - Settings → Boards → Create Board
+   - Name: "Feedback"
+   - Type: Feature Requests
+3. **Get Credentials**:
+   - **Subdomain**: Your Canny URL (e.g., `myapp` from `myapp.canny.io`)
+   - **Board Token**: Settings → Boards → Your Board → Board Token
+   - **App ID**: Settings → General → App ID
+   - Save these for Step 4
+
+---
+
+## Step 4: Deploy to Render (8 minutes)
 
 1. **Push to GitHub**:
    ```bash
@@ -55,33 +70,18 @@ flutter run -d chrome
    - New → Web Service
    - Connect your GitHub repo
 
-3. **Configure**:
+3. **Configure Environment Variables**:
    - Runtime: Docker
-   - Add environment variables:
+   - Add these variables:
      - `SUPABASE_URL`: Your Supabase project URL
      - `SUPABASE_ANON_KEY`: Your Supabase anon key
+     - `CANNY_SUBDOMAIN`: Your Canny subdomain
+     - `CANNY_BOARD_TOKEN`: Your Canny board token
+     - `CANNY_APP_ID`: Your Canny app ID
 
 4. **Deploy**: Click "Create Web Service"
 
 5. **Wait**: First deploy takes ~10 minutes
-
----
-
-## Step 4: Set Up Admin Access (3 minutes)
-
-1. **Sign up** in your deployed app
-2. **Go to Supabase**:
-   - Authentication → Users
-   - Find your user → Edit
-   - Raw User Meta Data:
-     ```json
-     {
-       "is_admin": true
-     }
-     ```
-   - Save
-
-3. **Verify**: Settings → Admin Dashboard should now appear
 
 ---
 
@@ -92,19 +92,23 @@ Your app is now live at: `https://your-app-name.onrender.com`
 ### Share with test users:
 - Send them the URL
 - They can submit feedback via Settings → Send Feedback
+- Feedback opens in your Canny board
 
 ### Manage feedback:
-- Settings → Admin Dashboard
-- View all feedback, set priorities, add notes
+- Log in to https://canny.io
+- View all feedback, set priorities, update status
+- Respond to users with comments
+- Track your roadmap
 
 ---
 
 ## Next Steps
 
-- Read [DEPLOYMENT.md](./DEPLOYMENT.md) for full details
-- Read [FEEDBACK_GUIDE.md](./FEEDBACK_GUIDE.md) to learn feedback management
+- Read [DEPLOYMENT.md](./DEPLOYMENT.md) for full deployment details
+- Read [CANNY_SETUP.md](./CANNY_SETUP.md) to learn feedback management
 - Customize your app name in Render
 - Set up custom domain (optional)
+- Configure Canny roadmap and categories
 
 ---
 
@@ -112,15 +116,16 @@ Your app is now live at: `https://your-app-name.onrender.com`
 
 **App won't build?**
 - Check Flutter version: `flutter --version` (need 3.0+)
-- Ensure environment variables are set in Render
+- Ensure all environment variables are set in Render
 
-**Can't see admin dashboard?**
-- Log out and back in after setting admin flag
-- Check Supabase user metadata is saved correctly
+**Feedback button says "Not Configured"?**
+- Verify Canny environment variables are set in Render
+- Check for typos in variable names
+- Redeploy after adding variables
 
-**Feedback not saving?**
-- Verify both migration files were run in Supabase
-- Check Table Editor → feedback table exists
+**Feedback opens but shows wrong board?**
+- Check `CANNY_BOARD_TOKEN` is correct
+- Get the token from Settings → Boards in Canny
 
 **More help**: See [DEPLOYMENT.md](./DEPLOYMENT.md) Troubleshooting section
 
@@ -130,5 +135,6 @@ Your app is now live at: `https://your-app-name.onrender.com`
 
 **Supabase**: 500MB database, plenty for testing
 **Render**: App spins down after 15 min of inactivity (restarts in ~30s)
+**Canny**: Up to 50 users, unlimited feedback
 
-Both services are free forever for small projects!
+All services are free forever for small projects!

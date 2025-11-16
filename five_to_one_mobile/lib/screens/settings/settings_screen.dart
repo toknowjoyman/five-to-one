@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
-import '../../services/feedback_service.dart';
-import '../../widgets/feedback_dialog.dart';
-import '../feedback/my_feedback_screen.dart';
-import '../feedback/admin_feedback_screen.dart';
+import '../../services/canny_service.dart';
+import '../../config/canny_config.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -15,22 +13,6 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final _authService = AuthService();
-  bool _isAdmin = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkAdmin();
-  }
-
-  Future<void> _checkAdmin() async {
-    final isAdmin = await FeedbackService.isAdmin();
-    if (mounted) {
-      setState(() {
-        _isAdmin = isAdmin;
-      });
-    }
-  }
 
   Future<void> _handleSignOut() async {
     final confirmed = await showDialog<bool>(
@@ -202,43 +184,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
 
-          ListTile(
-            leading: const Icon(Icons.feedback_outlined),
-            title: const Text('Send Feedback'),
-            subtitle: const Text('Share your thoughts or report issues'),
-            onTap: () async {
-              await FeedbackDialog.show(context);
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('My Feedback'),
-            subtitle: const Text('View your submitted feedback'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyFeedbackScreen(),
-                ),
-              );
-            },
-          ),
-
-          // Admin Dashboard (only for admins)
-          if (_isAdmin)
+          // Feedback via Canny
+          if (CannyConfig.isConfigured)
             ListTile(
-              leading: const Icon(Icons.admin_panel_settings, color: AppTheme.accentOrange),
-              title: const Text('Admin Dashboard'),
-              subtitle: const Text('Manage user feedback'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AdminFeedbackScreen(),
-                  ),
-                );
+              leading: const Icon(Icons.feedback_outlined),
+              title: const Text('Send Feedback'),
+              subtitle: const Text('Share feedback, request features, report bugs'),
+              trailing: const Icon(Icons.open_in_new, size: 16),
+              onTap: () async {
+                try {
+                  await CannyService.openFeedback();
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Could not open feedback: $e'),
+                        backgroundColor: AppTheme.urgentRed,
+                      ),
+                    );
+                  }
+                }
               },
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.feedback_outlined, color: Colors.grey),
+              title: const Text('Feedback (Not Configured)'),
+              subtitle: const Text('Contact developer to enable feedback'),
+              enabled: false,
             ),
 
           ListTile(

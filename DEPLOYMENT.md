@@ -1,14 +1,14 @@
 # Deployment Guide - Five to One
 
-This guide will help you deploy your Five to One app to Render.io so your test users can access it via a web browser on their phones.
+This comprehensive guide will help you deploy your Five to One app to Render.io with Canny feedback integration.
 
 ## Table of Contents
 
 1. [Prerequisites](#prerequisites)
 2. [Local Setup](#local-setup)
 3. [Supabase Setup](#supabase-setup)
-4. [Deploying to Render.io](#deploying-to-renderio)
-5. [Setting Up Admin Access](#setting-up-admin-access)
+4. [Canny Setup](#canny-setup)
+5. [Deploying to Render.io](#deploying-to-renderio)
 6. [Accessing the App](#accessing-the-app)
 7. [Troubleshooting](#troubleshooting)
 
@@ -20,9 +20,10 @@ Before deploying, ensure you have:
 
 - **Flutter SDK** installed (version 3.0.0 or higher)
 - **Git** installed
-- **Supabase account** (free tier is fine)
-- **Render.io account** (free tier is fine)
-- **GitHub account** (to connect your repository to Render)
+- **Supabase account** (free tier): https://supabase.com
+- **Canny account** (free tier): https://canny.io
+- **Render.io account** (free tier): https://render.com
+- **GitHub account**
 
 ---
 
@@ -30,7 +31,7 @@ Before deploying, ensure you have:
 
 ### 1. Enable Flutter Web Support
 
-Run the provided script to enable web support:
+Run the provided script:
 
 ```bash
 cd /path/to/five-to-one
@@ -53,7 +54,7 @@ cd five_to_one_mobile
 flutter run -d chrome
 ```
 
-Your app should open in Chrome. Test the basic functionality to ensure everything works.
+Your app should open in Chrome. Test the basic functionality.
 
 ---
 
@@ -61,20 +62,18 @@ Your app should open in Chrome. Test the basic functionality to ensure everythin
 
 ### 1. Create a Supabase Project
 
-1. Go to [https://app.supabase.com](https://app.supabase.com)
+1. Go to https://app.supabase.com
 2. Click "New Project"
 3. Fill in the project details
 4. Wait for the project to be created
 
-### 2. Run Database Migrations
+### 2. Run Database Migration
 
 In your Supabase project:
 
 1. Go to **SQL Editor**
 2. Copy the contents of `five_to_one_mobile/supabase_schema.sql`
 3. Paste and run it
-4. Copy the contents of `five_to_one_mobile/supabase_feedback_schema.sql`
-5. Paste and run it
 
 ### 3. Get Your Supabase Credentials
 
@@ -83,7 +82,56 @@ In your Supabase project:
    - **Project URL** (e.g., `https://xxxxx.supabase.co`)
    - **anon/public key** (starts with `eyJ...`)
 
-You'll need these for Render.io deployment.
+Save these for Render.io deployment.
+
+---
+
+## Canny Setup
+
+Canny is used for collecting and managing user feedback. It's much simpler than managing a custom feedback system!
+
+### 1. Create a Canny Account
+
+1. Go to https://canny.io
+2. Sign up for a free account
+3. Create your company (use your app name)
+
+### 2. Create a Feedback Board
+
+1. Go to **Settings** → **Boards**
+2. Click **Create Board**
+3. Name it "Feedback" (or your preference)
+4. Choose board type: **Feature Requests**
+5. Click **Create**
+
+### 3. Configure Board Settings
+
+1. Go to your board → **Settings**
+2. Set privacy to **Public** (users don't need to log in)
+3. Enable **Voting** (let users vote on features)
+4. Enable **Status labels** (New, Planned, In Progress, Complete)
+
+Optional: Add categories like "Bug", "Feature", "Improvement"
+
+### 4. Get Your Canny Credentials
+
+You need three values:
+
+**Subdomain**:
+- Your Canny URL subdomain (e.g., `myapp` from `myapp.canny.io`)
+- Find in: Settings → General → Company URL
+
+**Board Token**:
+- Settings → Boards → Click your board → Board Token
+- Copy the token
+
+**App ID**:
+- Settings → General → App ID
+- Copy the value
+
+Save all three for Render.io deployment.
+
+**See [CANNY_SETUP.md](./CANNY_SETUP.md) for detailed Canny configuration guide.**
 
 ---
 
@@ -95,13 +143,13 @@ Ensure your latest changes are committed and pushed:
 
 ```bash
 git add .
-git commit -m "Add Render.io deployment configuration and feedback system"
+git commit -m "Add Render.io deployment with Canny feedback"
 git push origin main
 ```
 
 ### 2. Create a New Web Service on Render
 
-1. Go to [https://dashboard.render.com](https://dashboard.render.com)
+1. Go to https://dashboard.render.com
 2. Click **New** → **Web Service**
 3. Connect your GitHub repository
 4. Select the `five-to-one` repository
@@ -118,23 +166,33 @@ Use these settings:
 
 ### 4. Environment Variables
 
-In the **Environment** section, add:
+In the **Environment** section, add these variables:
+
+#### Supabase Configuration
 
 | Key | Value |
 |-----|-------|
 | `SUPABASE_URL` | Your Supabase project URL |
 | `SUPABASE_ANON_KEY` | Your Supabase anon key |
 
-**Important**: Click "Save Changes" after adding each variable.
+#### Canny Configuration
+
+| Key | Value |
+|-----|-------|
+| `CANNY_SUBDOMAIN` | Your Canny subdomain |
+| `CANNY_BOARD_TOKEN` | Your Canny board token |
+| `CANNY_APP_ID` | Your Canny app ID |
+
+**Important**: Click "Save Changes" after adding variables.
 
 ### 5. Deploy
 
-Click **Create Web Service**. Render will:
-
-1. Clone your repository
-2. Build the Docker image
-3. Build the Flutter web app
-4. Deploy it
+1. Click **Create Web Service**
+2. Render will:
+   - Clone your repository
+   - Build the Docker image
+   - Build the Flutter web app
+   - Deploy it
 
 This process takes 5-10 minutes for the first deployment.
 
@@ -147,43 +205,6 @@ https://five-to-one-app.onrender.com
 ```
 
 Share this URL with your test users!
-
----
-
-## Setting Up Admin Access
-
-To manage feedback, you need to set up admin access for yourself.
-
-### 1. Sign Up in Your App
-
-1. Open your deployed app
-2. Create an account with your email
-3. Note down your email address
-
-### 2. Set Admin Flag in Supabase
-
-1. Go to your Supabase project
-2. Navigate to **Authentication** → **Users**
-3. Find your user account
-4. Click on the user
-5. Go to **Raw User Meta Data** section
-6. Click **Edit**
-7. Add this JSON:
-
-```json
-{
-  "is_admin": true
-}
-```
-
-8. Click **Save**
-
-### 3. Verify Admin Access
-
-1. Log out and log back in to your app
-2. Go to **Settings**
-3. You should now see **Admin Dashboard** option
-4. Click it to access the feedback management interface
 
 ---
 
@@ -201,59 +222,30 @@ Users can:
 - Open the app in their mobile browser
 - Sign up with email or use anonymously
 - Create tasks and use frameworks
-- **Submit feedback** via Settings → Send Feedback
+- **Submit feedback** via Settings → Send Feedback (opens Canny)
+
+### Feedback System
+
+When users click **Settings → Send Feedback**:
+
+1. Opens your Canny board in a new tab
+2. Users can:
+   - Browse existing feedback
+   - Vote on features they want
+   - Submit new feedback
+   - Track status of their requests
+3. You manage everything in the Canny dashboard
 
 ### For You (Admin)
 
-Access the admin dashboard:
+Access Canny dashboard to manage feedback:
 
-1. Open the app
-2. Log in with your admin account
-3. Go to **Settings** → **Admin Dashboard**
-
-Here you can:
-- **View all feedback** from users
-- **Filter by status, category, priority**
-- **Update feedback status** (new → in progress → completed)
-- **Change priority levels**
-- **Add admin notes** to respond to users
-- **View statistics** about feedback
-
----
-
-## Feedback System Features
-
-### For Users
-
-1. **Send Feedback**:
-   - Go to Settings → Send Feedback
-   - Choose category: Bug, Feature Request, Improvement, or Other
-   - Provide title and description
-   - Optionally include email for follow-up
-
-2. **View My Feedback**:
-   - Go to Settings → My Feedback
-   - See all your submitted feedback
-   - Check status (New, In Progress, Completed)
-   - Read admin responses
-
-### For Admins
-
-1. **Feedback Dashboard**:
-   - View all user feedback in one place
-   - Filter and sort by various criteria
-   - See real-time statistics
-
-2. **Triage and Prioritize**:
-   - Set priority: Low, Medium, High, Critical
-   - Update status as you work on issues
-   - Add notes for users
-
-3. **Statistics Tab**:
-   - Total feedback count
-   - Breakdown by status
-   - Breakdown by category
-   - Critical issues count
+1. Log in at https://canny.io
+2. View all feedback in one place
+3. Triage and prioritize
+4. Update status as you work on features
+5. Respond to users
+6. Manage your public roadmap
 
 ---
 
@@ -283,41 +275,47 @@ When you make changes and want to deploy:
 - Check the Dockerfile uses the correct Flutter version
 
 **Check dependencies**:
-- Run `flutter pub get` locally to ensure all dependencies are available
+- Run `flutter pub get` locally to ensure all dependencies resolve
+- Check for any dependency version conflicts
+
+**View build logs**:
+- In Render dashboard, click on your service
+- Go to "Logs" tab to see build errors
 
 ### Environment Variables Not Working
 
 **Verify in Render**:
 1. Go to your web service in Render
 2. Click **Environment**
-3. Ensure `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set correctly
-4. Redeploy after adding variables
+3. Ensure all 5 variables are set correctly
+4. Redeploy after adding/updating variables
 
 **Check for typos**:
 - Variable names are case-sensitive
 - Ensure no extra spaces
+- Verify values are correct (copy-paste from source)
 
-### Feedback Not Saving
+### Feedback Button Says "Not Configured"
 
-**Check Supabase**:
-1. Ensure you ran both migration files:
-   - `supabase_schema.sql`
-   - `supabase_feedback_schema.sql`
-2. Go to **Table Editor** in Supabase
-3. Verify the `feedback` table exists
+**Issue**: Canny environment variables aren't set.
 
-**Check permissions**:
-- The feedback table has Row Level Security enabled
-- Users should be able to insert their own feedback
-- Check the Supabase logs for any permission errors
+**Solution**:
+1. Go to Render → Environment
+2. Verify these are set:
+   - `CANNY_SUBDOMAIN`
+   - `CANNY_BOARD_TOKEN`
+   - `CANNY_APP_ID`
+3. Redeploy the app
 
-### Admin Dashboard Not Showing
+### Feedback Opens Wrong Board
 
-**Verify admin flag**:
-1. Go to Supabase → Authentication → Users
-2. Find your user
-3. Check Raw User Meta Data has `"is_admin": true`
-4. Log out and log back in
+**Issue**: Board token is incorrect.
+
+**Solution**:
+1. Go to Canny → Settings → Boards
+2. Copy the correct board token
+3. Update `CANNY_BOARD_TOKEN` in Render
+4. Redeploy
 
 ### App Is Slow on Mobile
 
@@ -328,13 +326,14 @@ When you make changes and want to deploy:
 **Check network**:
 - Render's free tier may spin down after inactivity
 - First load after inactivity takes 30-60 seconds
+- This is normal for the free tier
 
 ### CORS Errors
 
 If you see CORS errors:
 1. Go to Supabase → Settings → API
 2. Check that your Render URL is allowed
-3. Supabase allows all origins by default, so this shouldn't be an issue
+3. Supabase allows all origins by default
 
 ---
 
@@ -351,8 +350,13 @@ If you see CORS errors:
 **Render (Free)**:
 - 750 hours/month of running time
 - Spins down after 15 minutes of inactivity
-- Restarts when someone accesses it
-- Slow restart (~30-60 seconds)
+- Restarts when someone accesses it (30-60 seconds)
+
+**Canny (Free)**:
+- Up to 50 users
+- Unlimited feedback posts
+- All core features
+- Canny branding
 
 ### Upgrading
 
@@ -368,23 +372,36 @@ If your app gets popular:
 - Faster restarts
 - Better performance
 
+**Canny Starter** ($50/month):
+- Up to 100 users
+- Remove branding
+- Custom categories
+
 ---
 
 ## Next Steps
 
-1. **Collect Feedback**: Share the app URL with test users
-2. **Monitor Feedback**: Check the admin dashboard regularly
-3. **Prioritize Issues**: Triage bugs and feature requests
-4. **Iterate**: Fix issues and deploy updates
-5. **Communicate**: Use admin notes to respond to users
+1. **Share with test users**: Send them your Render URL
+2. **Set up Canny**: Configure categories, roadmap, and branding
+3. **Collect feedback**: Monitor Canny for user submissions
+4. **Iterate**: Fix bugs and add features based on feedback
+5. **Communicate**: Use Canny to update users on progress
 
 ---
 
 ## Additional Resources
 
-- [Flutter Web Documentation](https://docs.flutter.dev/platform-integration/web)
-- [Supabase Documentation](https://supabase.com/docs)
-- [Render Documentation](https://render.com/docs)
+- **Flutter Web Documentation**: https://docs.flutter.dev/platform-integration/web
+- **Supabase Documentation**: https://supabase.com/docs
+- **Render Documentation**: https://render.com/docs
+- **Canny Documentation**: https://developers.canny.io
+
+---
+
+## Related Guides
+
+- **[QUICKSTART.md](./QUICKSTART.md)** - Get up and running in 15 minutes
+- **[CANNY_SETUP.md](./CANNY_SETUP.md)** - Detailed Canny configuration and best practices
 
 ---
 
@@ -394,7 +411,8 @@ If you encounter issues:
 
 1. **Check the logs** in Render dashboard
 2. **Check Supabase logs** for database errors
-3. **Test locally** first to isolate deployment issues
-4. **Consult the troubleshooting section** above
+3. **Check Canny dashboard** for feedback system issues
+4. **Test locally** first to isolate deployment issues
+5. **Consult the troubleshooting section** above
 
 Good luck with your deployment! 🚀

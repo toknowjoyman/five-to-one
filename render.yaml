@@ -11,3 +11,9 @@ services:
         sync: false
       - key: SUPABASE_ANON_KEY
         sync: false
+      - key: CANNY_SUBDOMAIN
+        sync: false
+      - key: CANNY_BOARD_TOKEN
+        sync: false
+      - key: CANNY_APP_ID
+        sync: false
