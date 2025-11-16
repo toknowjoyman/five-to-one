@@ -129,16 +129,22 @@ class ItemsService {
 
   /// Update positions of multiple items
   Future<void> updatePositions(Map<String, int> itemPositions) async {
-    // Update positions in parallel for better performance
-    await Future.wait(
-      itemPositions.entries.map((entry) =>
-        _client
+    // Update positions sequentially with error handling
+    // Sequential is more reliable than parallel for many updates
+    for (final entry in itemPositions.entries) {
+      try {
+        await _client
             .from('items')
             .update({'position': entry.value})
             .eq('id', entry.key)
-            .eq('user_id', SupabaseService.userId)
-      ),
-    );
+            .eq('user_id', SupabaseService.userId);
+      } catch (e) {
+        // Log error but continue with other updates
+        print('Error updating position for ${entry.key}: $e');
+        // Re-throw to let caller handle the overall failure
+        rethrow;
+      }
+    }
   }
 
   /// Save user's 25 goals after prioritization

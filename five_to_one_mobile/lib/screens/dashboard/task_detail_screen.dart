@@ -762,29 +762,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ),
       ),
       child: ListTile(
-        leading: GestureDetector(
-          onTap: () => _toggleComplete(task),
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: task.isCompleted ? AppTheme.successGreen : Colors.transparent,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: task.isCompleted
-                    ? AppTheme.successGreen
-                    : AppTheme.textSecondary,
-                width: 2,
+        leading: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ReorderableDragStartListener(
+              index: _children.indexOf(task),
+              child: Icon(
+                Icons.drag_handle,
+                color: AppTheme.textSecondary.withOpacity(0.5),
               ),
             ),
-            child: task.isCompleted
-                ? const Icon(
-                    Icons.check,
-                    color: Colors.white,
-                    size: 20,
-                  )
-                : null,
-          ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: () => _toggleComplete(task),
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: task.isCompleted ? AppTheme.successGreen : Colors.transparent,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: task.isCompleted
+                        ? AppTheme.successGreen
+                        : AppTheme.textSecondary,
+                    width: 2,
+                  ),
+                ),
+                child: task.isCompleted
+                    ? const Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: 20,
+                      )
+                    : null,
+              ),
+            ),
+          ],
         ),
         title: GestureDetector(
           onLongPress: () => _showEditTaskDialog(task),
@@ -801,22 +814,9 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
           ),
         ),
         subtitle: task.frameworkIds.isNotEmpty ? _buildFrameworkBadge(task) : null,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.chevron_right,
-              color: AppTheme.textSecondary,
-            ),
-            const SizedBox(width: 8),
-            ReorderableDragStartListener(
-              index: _children.indexOf(task),
-              child: Icon(
-                Icons.drag_handle,
-                color: AppTheme.textSecondary.withOpacity(0.5),
-              ),
-            ),
-          ],
+        trailing: const Icon(
+          Icons.chevron_right,
+          color: AppTheme.textSecondary,
         ),
         onTap: () => _navigateToSubtasks(task),
       ),

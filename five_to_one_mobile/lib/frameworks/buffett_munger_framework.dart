@@ -585,6 +585,13 @@ class _AvoidListScreenState extends State<_AvoidListScreen> {
                         ),
                         child: Row(
                           children: [
+                            // Drag handle
+                            Icon(
+                              Icons.drag_handle,
+                              color: AppTheme.textSecondary.withOpacity(0.5),
+                            ),
+                            const SizedBox(width: 8),
+
                             // Number
                             Container(
                               width: 32,
@@ -615,17 +622,13 @@ class _AvoidListScreenState extends State<_AvoidListScreen> {
                               ),
                             ),
 
-                            // Chevron and drag handle
+                            // Chevron
                             IconButton(
                               icon: const Icon(
                                 Icons.chevron_right,
                                 color: AppTheme.textSecondary,
                               ),
                               onPressed: () => _navigateToTask(context, item),
-                            ),
-                            const Icon(
-                              Icons.drag_handle,
-                              color: AppTheme.textSecondary,
                             ),
                           ],
                         ),
