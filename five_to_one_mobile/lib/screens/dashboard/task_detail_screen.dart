@@ -107,6 +107,63 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     }
   }
 
+  Future<void> _confirmDeleteCurrentTask() async {
+    final childrenCount = _children.length;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Task?'),
+        content: Text(
+          childrenCount > 0
+              ? 'This will permanently delete "${widget.task.title}" and all $childrenCount subtasks. This action cannot be undone.'
+              : 'This will permanently delete "${widget.task.title}". This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.urgentRed),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _deleteCurrentTask();
+    }
+  }
+
+  Future<void> _deleteCurrentTask() async {
+    try {
+      await _itemsService.deleteItem(widget.task.id);
+
+      if (mounted) {
+        // Navigate back after deletion
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task deleted'),
+            backgroundColor: AppTheme.successGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error deleting task: $e'),
+            backgroundColor: AppTheme.urgentRed,
+          ),
+        );
+      }
+    }
+  }
+
   void _navigateToSubtasks(Item task) {
     Navigator.push(
       context,
@@ -171,6 +228,26 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
             icon: const Icon(Icons.tune),
             tooltip: 'Apply Framework',
             onPressed: _showFrameworkPicker,
+          ),
+          // More options menu
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'delete') {
+                _confirmDeleteCurrentTask();
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: AppTheme.urgentRed),
+                    SizedBox(width: 12),
+                    Text('Delete Task', style: TextStyle(color: AppTheme.urgentRed)),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -342,6 +419,32 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         return Dismissible(
           key: Key(task.id),
           direction: DismissDirection.horizontal,
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.startToEnd) {
+              // Complete action - no confirmation needed
+              return true;
+            } else {
+              // Delete action - show confirmation
+              return await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Delete Task?'),
+                  content: Text('This will permanently delete "${task.title}" and all its subtasks.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: TextButton.styleFrom(foregroundColor: AppTheme.urgentRed),
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
           onDismissed: (direction) {
             if (direction == DismissDirection.startToEnd) {
               _toggleComplete(task);

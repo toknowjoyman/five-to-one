@@ -276,6 +276,32 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
         return Dismissible(
           key: Key(task.id),
           direction: DismissDirection.horizontal,
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.startToEnd) {
+              // Complete action - no confirmation needed
+              return true;
+            } else {
+              // Delete action - show confirmation
+              return await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Delete Task?'),
+                  content: Text('This will permanently delete "${task.title}" and all its subtasks.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: TextButton.styleFrom(foregroundColor: AppTheme.urgentRed),
+                      child: const Text('Delete'),
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
           onDismissed: (direction) {
             if (direction == DismissDirection.startToEnd) {
               _toggleComplete(task);
