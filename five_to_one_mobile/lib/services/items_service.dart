@@ -21,7 +21,7 @@ class ItemsService {
     final response = await _client
         .from('items')
         .select()
-        .is_('parent_id', null)
+        .isFilter('parent_id', null)
         .eq('user_id', SupabaseService.userId)
         .order('position');
 
@@ -33,7 +33,7 @@ class ItemsService {
     final response = await _client
         .from('items')
         .select()
-        .is_('parent_id', null)
+        .isFilter('parent_id', null)
         .not('priority', 'is', null)
         .eq('user_id', SupabaseService.userId)
         .order('priority')
@@ -47,7 +47,7 @@ class ItemsService {
     final response = await _client
         .from('items')
         .select()
-        .is_('parent_id', null)
+        .isFilter('parent_id', null)
         .eq('is_avoided', true)
         .eq('user_id', SupabaseService.userId)
         .order('position');

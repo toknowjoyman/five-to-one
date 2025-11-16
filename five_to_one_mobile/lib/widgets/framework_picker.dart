@@ -29,7 +29,6 @@ class FrameworkPicker extends StatefulWidget {
   ) {
     return showModalBottomSheet(
       context: context,
-      isScrollControllerAttached: true,
       builder: (context) => FrameworkPicker(
         task: task,
         children: children,
