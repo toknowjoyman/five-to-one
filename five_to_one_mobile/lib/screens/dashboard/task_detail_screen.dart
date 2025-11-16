@@ -390,9 +390,25 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 _showEditTitleDialog();
               } else if (value == 'delete') {
                 _confirmDeleteCurrentTask();
+              } else if (value == 'toggle_view') {
+                setState(() {
+                  _useFrameworkView = !_useFrameworkView;
+                });
               }
             },
             itemBuilder: (context) => [
+              // View switcher (only show if framework is active)
+              if (widget.task.frameworkIds.isNotEmpty)
+                PopupMenuItem(
+                  value: 'toggle_view',
+                  child: Row(
+                    children: [
+                      Icon(_useFrameworkView ? Icons.list : Icons.filter_5),
+                      const SizedBox(width: 12),
+                      Text(_useFrameworkView ? 'Switch to List View' : 'Switch to BM View'),
+                    ],
+                  ),
+                ),
               const PopupMenuItem(
                 value: 'edit',
                 child: Row(
@@ -458,24 +474,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
               ),
               Row(
                 children: [
-                  // View switcher button
-                  TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _useFrameworkView = !_useFrameworkView;
-                      });
-                    },
-                    icon: Icon(
-                      _useFrameworkView ? Icons.list : Icons.filter_5,
-                      size: 16,
-                    ),
-                    label: Text(_useFrameworkView ? 'List View' : 'BM View'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppTheme.accentOrange,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                    ),
-                  ),
-                  const SizedBox(width: 4),
                   // Change framework button
                   TextButton.icon(
                     onPressed: _showFrameworkPicker,
