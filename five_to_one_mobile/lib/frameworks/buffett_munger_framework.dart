@@ -399,6 +399,26 @@ class _BuffettMungerViewState extends State<_BuffettMungerView> {
               const SizedBox(height: 24),
             ],
 
+            // Reprioritize button
+            if (topFive.isNotEmpty || avoidList.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ElevatedButton.icon(
+                  onPressed: () => _reprioritize(context, children),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.primaryPurple,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(Icons.swap_vert),
+                  label: const Text('Reprioritize'),
+                ),
+              ),
+            const SizedBox(height: 12),
+
             // Avoid list button
             if (avoidList.isNotEmpty)
               Padding(
@@ -441,52 +461,225 @@ class _BuffettMungerViewState extends State<_BuffettMungerView> {
     );
   }
 
-  void _showAvoidList(BuildContext context, List<Item> avoidList) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Avoid List',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'These tasks are deprioritized until your top 5 are complete.',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppTheme.textSecondary,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: avoidList.length,
-                itemBuilder: (context, index) {
-                  final item = avoidList[index];
-                  return ListTile(
-                    leading: const Icon(Icons.block, color: AppTheme.textSecondary),
-                    title: Text(
-                      item.title,
-                      style: const TextStyle(color: AppTheme.textSecondary),
-                    ),
-                    trailing: const Icon(
-                      Icons.chevron_right,
-                      color: AppTheme.textSecondary,
-                    ),
-                    onTap: () {
-                      Navigator.pop(context); // Close the bottom sheet
-                      _navigateToSubtasks(context, item);
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+  void _reprioritize(BuildContext context, List<Item> children) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _BuffettMungerSetupFlow(
+          task: widget.task,
+          children: children,
+          onComplete: () {
+            Navigator.pop(context);
+            setState(() {}); // Refresh the view
+          },
         ),
       ),
     );
+  }
+
+  void _showAvoidList(BuildContext context, List<Item> avoidList) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => _AvoidListScreen(
+          parentTask: widget.task,
+          initialAvoidList: avoidList,
+        ),
+      ),
+    ).then((_) {
+      // Refresh the view when returning from avoid list
+      setState(() {});
+    });
+  }
+}
+
+/// Screen for viewing and reordering the avoid list
+class _AvoidListScreen extends StatefulWidget {
+  final Item parentTask;
+  final List<Item> initialAvoidList;
+
+  const _AvoidListScreen({
+    required this.parentTask,
+    required this.initialAvoidList,
+  });
+
+  @override
+  State<_AvoidListScreen> createState() => _AvoidListScreenState();
+}
+
+class _AvoidListScreenState extends State<_AvoidListScreen> {
+  final _itemsService = ItemsService();
+  late List<Item> _avoidList;
+
+  @override
+  void initState() {
+    super.initState();
+    _avoidList = [...widget.initialAvoidList]
+      ..sort((a, b) => a.position.compareTo(b.position));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Avoid List'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Instructions
+          Container(
+            padding: const EdgeInsets.all(24),
+            color: AppTheme.cardBackground,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.block, color: AppTheme.textSecondary),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Deprioritized Tasks',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'These tasks are on hold until your top 5 priorities are complete. Drag to reorder.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: AppTheme.textSecondary,
+                      ),
+                ),
+              ],
+            ),
+          ),
+
+          // Reorderable list
+          Expanded(
+            child: _avoidList.isEmpty
+                ? Center(
+                    child: Text(
+                      'No avoided tasks',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: AppTheme.textSecondary,
+                          ),
+                    ),
+                  )
+                : ReorderableListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _avoidList.length,
+                    onReorder: _handleReorder,
+                    itemBuilder: (context, index) {
+                      final item = _avoidList[index];
+                      return Container(
+                        key: Key(item.id),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppTheme.cardBackground.withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppTheme.textSecondary.withOpacity(0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            // Number
+                            Container(
+                              width: 32,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                color: AppTheme.textSecondary.withOpacity(0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                '${index + 6}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+
+                            // Title
+                            Expanded(
+                              child: Text(
+                                item.title,
+                                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                      color: AppTheme.textSecondary,
+                                    ),
+                              ),
+                            ),
+
+                            // Chevron and drag handle
+                            IconButton(
+                              icon: const Icon(
+                                Icons.chevron_right,
+                                color: AppTheme.textSecondary,
+                              ),
+                              onPressed: () => _navigateToTask(context, item),
+                            ),
+                            const Icon(
+                              Icons.drag_handle,
+                              color: AppTheme.textSecondary,
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleReorder(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+
+    setState(() {
+      final item = _avoidList.removeAt(oldIndex);
+      _avoidList.insert(newIndex, item);
+    });
+
+    // Update positions in database
+    // Note: Avoid list items start at position 5 (after top 5)
+    final positionUpdates = <String, int>{};
+    for (int i = 0; i < _avoidList.length; i++) {
+      positionUpdates[_avoidList[i].id] = i + 5;
+    }
+
+    try {
+      await _itemsService.updatePositions(positionUpdates);
+    } catch (e) {
+      print('Error updating positions: $e');
+      // Reload to restore correct order
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating positions: $e'),
+            backgroundColor: AppTheme.urgentRed,
+          ),
+        );
+      }
+    }
+  }
+
+  void _navigateToTask(BuildContext context, Item task) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TaskDetailScreen(task: task),
+      ),
+    ).then((_) {
+      // Refresh when returning
+      Navigator.pop(context);
+    });
   }
 }
