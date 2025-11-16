@@ -107,37 +107,42 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
 
   Future<void> _showEditTaskDialog(Item task) async {
     final controller = TextEditingController(text: task.title);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Task'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: 'Task Title',
-            hintText: 'Enter task title',
+    try {
+      final result = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Edit Task'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Task Title',
+              hintText: 'Enter task title',
+            ),
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
           ),
-          autofocus: true,
-          textCapitalization: TextCapitalization.sentences,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text.trim()),
+              child: const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
+      );
 
-    if (result != null && result.isNotEmpty && result != task.title) {
-      await _updateTask(task, result);
+      if (result != null && result.isNotEmpty && result != task.title) {
+        await _updateTask(task, result);
+      }
+    } finally {
+      // Dispose controller after the frame completes to avoid disposal during animation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
-
-    controller.dispose();
   }
 
   Future<void> _updateTask(Item task, String newTitle) async {
