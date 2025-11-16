@@ -3,6 +3,7 @@ import '../../theme/app_theme.dart';
 import '../../models/item.dart';
 import '../../services/items_service.dart';
 import '../../services/supabase_service.dart';
+import '../../frameworks/framework_registry.dart';
 import 'task_detail_screen.dart';
 import 'package:uuid/uuid.dart';
 
@@ -109,22 +110,64 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
     ).then((_) => _loadTasks()); // Refresh on return
   }
 
+  void _showRootFrameworkPicker() {
+    // Create a virtual root item to represent the collection
+    final virtualRoot = Item(
+      id: 'root',
+      userId: SupabaseService.userId,
+      parentId: null,
+      title: 'My Tasks',
+      createdAt: DateTime.now(),
+    );
+
+    FrameworkPicker.show(
+      context,
+      virtualRoot,
+      _tasks,
+      (framework) {
+        _showFrameworkSetupForRoot(framework);
+      },
+    );
+  }
+
+  void _showFrameworkSetupForRoot(framework) {
+    final virtualRoot = Item(
+      id: 'root',
+      userId: SupabaseService.userId,
+      parentId: null,
+      title: 'My Tasks',
+      createdAt: DateTime.now(),
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => framework.buildSetupFlow(
+          context,
+          virtualRoot,
+          _tasks,
+          () {
+            Navigator.pop(context);
+            _loadTasks();
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('My Tasks'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.tune),
-            tooltip: 'Frameworks',
-            onPressed: () {
-              // TODO: Navigate to frameworks screen
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Frameworks screen coming soon!')),
-              );
-            },
-          ),
+          // Apply framework to root tasks
+          if (_tasks.length >= 5)
+            IconButton(
+              icon: const Icon(Icons.tune),
+              tooltip: 'Organize with Framework',
+              onPressed: _showRootFrameworkPicker,
+            ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
@@ -320,11 +363,46 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
                     : AppTheme.textPrimary,
               ),
         ),
+        subtitle: task.frameworkIds.isNotEmpty ? _buildFrameworkBadge(task) : null,
         trailing: const Icon(
           Icons.chevron_right,
           color: AppTheme.textSecondary,
         ),
         onTap: () => _openTaskDetail(task),
+      ),
+    );
+  }
+
+  Widget _buildFrameworkBadge(Item task) {
+    final frameworks = FrameworkRegistry.getByIds(task.frameworkIds);
+    if (frameworks.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        children: frameworks.map((framework) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                framework.icon,
+                size: 14,
+                color: framework.color,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                framework.shortName,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: framework.color,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          );
+        }).toList(),
       ),
     );
   }

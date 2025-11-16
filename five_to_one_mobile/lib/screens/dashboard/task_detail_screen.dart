@@ -203,12 +203,42 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Active Frameworks:',
-            style: TextStyle(
-              fontSize: 12,
-              color: AppTheme.textSecondary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Active Frameworks:',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondary,
+                ),
+              ),
+              Row(
+                children: [
+                  // Change framework button
+                  TextButton.icon(
+                    onPressed: _showFrameworkPicker,
+                    icon: const Icon(Icons.swap_horiz, size: 16),
+                    label: const Text('Change'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.primaryPurple,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  // Remove framework button
+                  TextButton.icon(
+                    onPressed: () => _confirmRemoveFramework(frameworks.first),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: const Text('Remove'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppTheme.urgentRed,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
           const SizedBox(height: 8),
           Wrap(
@@ -229,6 +259,60 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _confirmRemoveFramework(TaskFramework framework) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Remove Framework?'),
+        content: Text(
+          'This will remove ${framework.name} from this task. '
+          'Framework-specific data will be cleared from all subtasks.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppTheme.urgentRed),
+            child: const Text('Remove'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await _removeFramework(framework);
+    }
+  }
+
+  Future<void> _removeFramework(TaskFramework framework) async {
+    try {
+      // Remove framework metadata from children
+      await framework.removeFromTask(widget.task, _children);
+
+      // Remove framework from task
+      await _itemsService.removeFramework(widget.task.id, framework.id);
+
+      // Reload
+      await _loadChildren();
+      setState(() {});
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${framework.name} removed')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error removing framework: $e')),
+        );
+      }
+    }
   }
 
   Widget _buildContent() {

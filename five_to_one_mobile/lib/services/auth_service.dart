@@ -31,11 +31,24 @@ class AuthService {
     await _client.auth.signOut();
   }
 
+  /// Reset password - sends email with reset link
+  Future<void> resetPassword({required String email}) async {
+    await _client.auth.resetPasswordForEmail(email);
+  }
+
+  /// Sign in anonymously
+  Future<AuthResponse> signInAnonymously() async {
+    return await _client.auth.signInAnonymously();
+  }
+
   /// Get current user
   User? get currentUser => _client.auth.currentUser;
 
   /// Check if user is logged in
   bool get isLoggedIn => currentUser != null;
+
+  /// Check if user is anonymous
+  bool get isAnonymous => currentUser?.isAnonymous ?? false;
 
   /// Listen to auth state changes
   Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;

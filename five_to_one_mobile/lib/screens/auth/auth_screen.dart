@@ -76,6 +76,80 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  Future<void> _showForgotPasswordDialog() async {
+    final emailController = TextEditingController();
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Password'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Enter your email to receive a password reset link.'),
+            const SizedBox(height: 16),
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                hintText: 'you@example.com',
+              ),
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Send Reset Link'),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && emailController.text.trim().isNotEmpty) {
+      try {
+        await _authService.resetPassword(email: emailController.text.trim());
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password reset link sent! Check your email.'),
+              backgroundColor: AppTheme.successGreen,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.toString()}')),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _handleAnonymousLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _authService.signInAnonymously();
+      widget.onAuthenticated();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -225,7 +299,56 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 48),
+                  // Forgot password (only show on login)
+                  if (_isLogin)
+                    TextButton(
+                      onPressed: _showForgotPasswordDialog,
+                      child: Text(
+                        'Forgot password?',
+                        style: TextStyle(
+                          color: AppTheme.textSecondary.withOpacity(0.8),
+                        ),
+                      ),
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Divider
+                  Row(
+                    children: [
+                      const Expanded(child: Divider()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          'OR',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppTheme.textSecondary,
+                              ),
+                        ),
+                      ),
+                      const Expanded(child: Divider()),
+                    ],
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Anonymous login
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _handleAnonymousLogin,
+                      icon: const Icon(Icons.person_outline),
+                      label: const Text('Try without account'),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(
+                          color: AppTheme.primaryPurple.withOpacity(0.5),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
 
                   // Info text
                   Text(
