@@ -41,14 +41,30 @@ class AuthService {
     return await _client.auth.signInAnonymously();
   }
 
+  /// Upgrade anonymous account to permanent account
+  ///
+  /// This converts an anonymous session to a permanent one by linking
+  /// email/password credentials. All existing data is preserved.
+  Future<UserResponse> upgradeAnonymousAccount({
+    required String email,
+    required String password,
+  }) async {
+    return await _client.auth.updateUser(
+      UserAttributes(
+        email: email,
+        password: password,
+      ),
+    );
+  }
+
+  /// Check if user is anonymous
+  bool get isAnonymous => currentUser?.isAnonymous ?? false;
+
   /// Get current user
   User? get currentUser => _client.auth.currentUser;
 
   /// Check if user is logged in
   bool get isLoggedIn => currentUser != null;
-
-  /// Check if user is anonymous
-  bool get isAnonymous => currentUser?.isAnonymous ?? false;
 
   /// Listen to auth state changes
   Stream<AuthState> get authStateChanges => _client.auth.onAuthStateChange;

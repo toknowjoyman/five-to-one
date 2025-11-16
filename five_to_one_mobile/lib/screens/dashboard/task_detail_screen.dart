@@ -501,12 +501,75 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                     : AppTheme.textPrimary,
               ),
         ),
+        subtitle: task.frameworkIds.isNotEmpty ? _buildFrameworkBadge(task) : null,
         trailing: const Icon(
           Icons.chevron_right,
           color: AppTheme.textSecondary,
         ),
         onTap: () => _navigateToSubtasks(task),
       ),
+    );
+  }
+
+  Widget _buildFrameworkBadge(Item task) {
+    final frameworks = FrameworkRegistry.getByIds(task.frameworkIds);
+    if (frameworks.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 4,
+        children: frameworks.map((framework) {
+          return _buildFrameworkDetailBadge(framework, task);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildFrameworkDetailBadge(framework, Item task) {
+    String detailText = framework.shortName;
+
+    // Buffett-Munger 5/25 - show priority or avoided status
+    if (framework.id == 'buffett_munger') {
+      if (task.isAvoided) {
+        detailText = 'Avoided';
+      } else if (task.priority != null && task.priority! > 0) {
+        detailText = 'Priority ${task.priority}';
+      }
+    }
+
+    // Eisenhower Matrix - show urgency/importance status
+    if (framework.id == 'eisenhower') {
+      if (task.isUrgent && task.isImportant) {
+        detailText = 'Urgent & Important';
+      } else if (task.isUrgent) {
+        detailText = 'Urgent';
+      } else if (task.isImportant) {
+        detailText = 'Important';
+      } else {
+        detailText = 'Neither';
+      }
+    }
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          framework.icon,
+          size: 14,
+          color: framework.color,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          detailText,
+          style: TextStyle(
+            fontSize: 12,
+            color: framework.color,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
