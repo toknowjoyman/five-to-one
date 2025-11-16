@@ -127,6 +127,18 @@ class ItemsService {
     return Item.fromJson(response);
   }
 
+  /// Update positions of multiple items
+  Future<void> updatePositions(Map<String, int> itemPositions) async {
+    // Update positions in batch
+    for (final entry in itemPositions.entries) {
+      await _client
+          .from('items')
+          .update({'position': entry.value})
+          .eq('id', entry.key)
+          .eq('user_id', SupabaseService.userId);
+    }
+  }
+
   /// Save user's 25 goals after prioritization
   Future<void> saveGoals(List<String> rankedGoals) async {
     final userId = SupabaseService.userId;
