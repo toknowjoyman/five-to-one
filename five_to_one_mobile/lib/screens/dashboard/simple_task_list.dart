@@ -138,8 +138,10 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
         await _updateTask(task, result);
       }
     } finally {
-      // Dispose controller after dialog animation completes
-      Future.microtask(() => controller.dispose());
+      // Dispose controller after the frame completes to avoid disposal during animation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
   }
 

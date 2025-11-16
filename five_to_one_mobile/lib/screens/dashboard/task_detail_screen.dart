@@ -140,8 +140,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         await _updateTask(task, result);
       }
     } finally {
-      // Dispose controller after dialog animation completes
-      Future.microtask(() => controller.dispose());
+      // Dispose controller after the frame completes to avoid disposal during animation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
   }
 
@@ -292,8 +294,10 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         await _updateTaskTitle(result);
       }
     } finally {
-      // Dispose controller after dialog animation completes
-      Future.microtask(() => controller.dispose());
+      // Dispose controller after the frame completes to avoid disposal during animation
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        controller.dispose();
+      });
     }
   }
 
