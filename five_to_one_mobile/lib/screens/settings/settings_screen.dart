@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
+import '../../services/feedback_service.dart';
+import '../../widgets/feedback_dialog.dart';
+import '../feedback/my_feedback_screen.dart';
+import '../feedback/admin_feedback_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,6 +15,22 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final _authService = AuthService();
+  bool _isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdmin();
+  }
+
+  Future<void> _checkAdmin() async {
+    final isAdmin = await FeedbackService.isAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
+  }
 
   Future<void> _handleSignOut() async {
     final confirmed = await showDialog<bool>(
@@ -181,6 +201,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
+
+          ListTile(
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('Send Feedback'),
+            subtitle: const Text('Share your thoughts or report issues'),
+            onTap: () async {
+              await FeedbackDialog.show(context);
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('My Feedback'),
+            subtitle: const Text('View your submitted feedback'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MyFeedbackScreen(),
+                ),
+              );
+            },
+          ),
+
+          // Admin Dashboard (only for admins)
+          if (_isAdmin)
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings, color: AppTheme.accentOrange),
+              title: const Text('Admin Dashboard'),
+              subtitle: const Text('Manage user feedback'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AdminFeedbackScreen(),
+                  ),
+                );
+              },
+            ),
 
           ListTile(
             leading: const Icon(Icons.info_outline),

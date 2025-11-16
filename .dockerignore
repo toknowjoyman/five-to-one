@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+Design-Plan/
+
+# Rails (legacy)
+src_rails_pgsql/
+
+# Build outputs (will be generated)
+five_to_one_mobile/build/
+five_to_one_mobile/.dart_tool/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules (if any)
+node_modules/
