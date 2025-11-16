@@ -52,6 +52,13 @@ CREATE TABLE items (
   color TEXT,             -- Used for life areas (V2): hex color code
   icon TEXT,              -- Used for life areas (V2): icon identifier
 
+  -- Enhanced task features
+  notes TEXT,             -- Task notes/description
+  tags TEXT[],            -- Task tags/labels (array)
+  due_date TIMESTAMP,     -- Due date for task
+  reminder TEXT,          -- Reminder setting ('15min', '1hour', '1day', etc.)
+  attachments TEXT[],     -- URLs or file paths to attachments (array)
+
   -- Timestamps
   completed_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -65,6 +72,8 @@ CREATE INDEX idx_items_priority ON items(priority) WHERE priority IS NOT NULL;
 CREATE INDEX idx_items_completed ON items(completed_at) WHERE completed_at IS NOT NULL;
 CREATE INDEX idx_items_framework ON items USING GIN(framework_ids); -- Array index for framework queries
 CREATE INDEX idx_items_scheduled ON items(scheduled_for) WHERE scheduled_for IS NOT NULL;
+CREATE INDEX idx_items_due_date ON items(due_date) WHERE due_date IS NOT NULL;
+CREATE INDEX idx_items_tags ON items USING GIN(tags); -- Array index for tag queries
 
 -- Updated timestamp trigger
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -116,6 +125,11 @@ RETURNS TABLE (
   column_position INT,
   color TEXT,
   icon TEXT,
+  notes TEXT,
+  tags TEXT[],
+  due_date TIMESTAMP,
+  reminder TEXT,
+  attachments TEXT[],
   completed_at TIMESTAMP,
   created_at TIMESTAMP,
   depth INT
@@ -141,7 +155,8 @@ RETURNS TABLE (
     id, user_id, parent_id, title, position, framework_ids,
     priority, is_avoided, is_urgent, is_important,
     scheduled_for, duration_minutes, kanban_column, column_position,
-    color, icon, completed_at, created_at, depth
+    color, icon, notes, tags, due_date, reminder, attachments,
+    completed_at, created_at, depth
   FROM descendants;
 $$ LANGUAGE SQL STABLE;
 
@@ -164,6 +179,11 @@ RETURNS TABLE (
   column_position INT,
   color TEXT,
   icon TEXT,
+  notes TEXT,
+  tags TEXT[],
+  due_date TIMESTAMP,
+  reminder TEXT,
+  attachments TEXT[],
   completed_at TIMESTAMP,
   created_at TIMESTAMP,
   depth INT
@@ -189,7 +209,8 @@ RETURNS TABLE (
     id, user_id, parent_id, title, position, framework_ids,
     priority, is_avoided, is_urgent, is_important,
     scheduled_for, duration_minutes, kanban_column, column_position,
-    color, icon, completed_at, created_at, depth
+    color, icon, notes, tags, due_date, reminder, attachments,
+    completed_at, created_at, depth
   FROM ancestors
   ORDER BY depth DESC;
 $$ LANGUAGE SQL STABLE;
