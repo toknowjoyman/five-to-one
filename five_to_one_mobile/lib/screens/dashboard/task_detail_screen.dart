@@ -190,14 +190,32 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       _children.insert(newIndex, task);
     });
 
-    // Update positions in database
-    final positionUpdates = <String, int>{};
-    for (int i = 0; i < _children.length; i++) {
-      positionUpdates[_children[i].id] = i;
-    }
+    // Check if Buffett-Munger framework is applied
+    final hasBuffettMunger = widget.task.frameworkIds.contains('buffett-munger');
 
     try {
-      await _itemsService.updatePositions(positionUpdates);
+      if (hasBuffettMunger) {
+        // Update both position and priority for BM framework
+        final updates = _children.asMap().entries.map((entry) {
+          final index = entry.key;
+          final child = entry.value;
+
+          return child.copyWith(
+            position: index,
+            priority: index < 5 ? index + 1 : null,
+            isAvoided: index >= 5,
+          );
+        }).toList();
+
+        await _itemsService.updateItems(updates);
+      } else {
+        // Only update positions for non-BM tasks
+        final positionUpdates = <String, int>{};
+        for (int i = 0; i < _children.length; i++) {
+          positionUpdates[_children[i].id] = i;
+        }
+        await _itemsService.updatePositions(positionUpdates);
+      }
     } catch (e) {
       print('Error updating positions: $e');
       // Reload to restore correct order
