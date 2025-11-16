@@ -517,13 +517,25 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
         spacing: 6,
         runSpacing: 4,
         children: frameworks.map((framework) {
-          return _buildFrameworkDetailBadge(framework, task);
+          // For Eisenhower framework, we need to check children
+          if (framework.id == 'eisenhower') {
+            return FutureBuilder<List<Item>>(
+              future: _itemsService.getChildren(task.id),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return _buildFrameworkDetailBadge(framework, task, null);
+                }
+                return _buildFrameworkDetailBadge(framework, task, snapshot.data);
+              },
+            );
+          }
+          return _buildFrameworkDetailBadge(framework, task, null);
         }).toList(),
       ),
     );
   }
 
-  Widget _buildFrameworkDetailBadge(framework, Item task) {
+  Widget _buildFrameworkDetailBadge(framework, Item task, List<Item>? children) {
     String detailText = framework.shortName;
 
     // Buffett-Munger 5/25 - show priority or avoided status
@@ -535,16 +547,27 @@ class _SimpleTaskListState extends State<SimpleTaskList> {
       }
     }
 
-    // Eisenhower Matrix - show urgency/importance status
-    if (framework.id == 'eisenhower') {
-      if (task.isUrgent && task.isImportant) {
+    // Eisenhower Matrix - show urgency/importance status based on children
+    if (framework.id == 'eisenhower' && children != null) {
+      final incompleteChildren = children.where((c) => !c.isCompleted).toList();
+
+      // Check if any children are urgent AND important
+      final hasUrgentImportant = incompleteChildren.any((c) => c.isUrgent && c.isImportant);
+      final hasUrgent = incompleteChildren.any((c) => c.isUrgent);
+      final hasImportant = incompleteChildren.any((c) => c.isImportant);
+      final hasNeither = incompleteChildren.any((c) => !c.isUrgent && !c.isImportant);
+
+      // Show highest priority category (unless only "Later" items exist)
+      if (hasUrgentImportant) {
         detailText = 'Urgent & Important';
-      } else if (task.isUrgent) {
+      } else if (hasUrgent) {
         detailText = 'Urgent';
-      } else if (task.isImportant) {
+      } else if (hasImportant) {
         detailText = 'Important';
+      } else if (hasNeither) {
+        detailText = 'Later';
       } else {
-        detailText = 'Neither';
+        detailText = 'Later';
       }
     }
 

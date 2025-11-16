@@ -11,7 +11,7 @@ import '../theme/app_theme.dart';
 /// 1. Urgent & Important (Do First)
 /// 2. Not Urgent & Important (Schedule)
 /// 3. Urgent & Not Important (Delegate)
-/// 4. Neither (Eliminate)
+/// 4. Later (Eliminate)
 class EisenhowerMatrixFramework extends TaskFramework {
   final _itemsService = ItemsService();
 
@@ -477,11 +477,11 @@ class _EisenhowerMatrixViewState extends State<_EisenhowerMatrixView> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Neither
+                    // Later
                     Expanded(
                       child: _buildQuadrant(
                         title: 'Eliminate',
-                        subtitle: 'Neither',
+                        subtitle: 'Later',
                         color: AppTheme.textSecondary,
                         tasks: neither,
                       ),
