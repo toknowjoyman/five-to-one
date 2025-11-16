@@ -25,6 +25,13 @@ class Item {
   final String? color; // For life areas (V2)
   final String? icon; // For life areas (V2)
 
+  // Enhanced task features
+  final String? notes; // Task notes/description
+  final List<String> tags; // Task tags/labels
+  final DateTime? dueDate; // Due date for task
+  final String? reminder; // Reminder setting (e.g., "15min", "1hour", "1day")
+  final List<String> attachments; // URLs or file paths to attachments
+
   final DateTime? completedAt;
   final DateTime createdAt;
 
@@ -49,6 +56,11 @@ class Item {
     this.columnPosition,
     this.color,
     this.icon,
+    this.notes,
+    this.tags = const [],
+    this.dueDate,
+    this.reminder,
+    this.attachments = const [],
     this.completedAt,
     required this.createdAt,
     this.children,
@@ -115,6 +127,11 @@ class Item {
       columnPosition: json['column_position'],
       color: json['color'],
       icon: json['icon'],
+      notes: json['notes'],
+      tags: json['tags'] != null ? List<String>.from(json['tags']) : [],
+      dueDate: json['due_date'] != null ? DateTime.parse(json['due_date']) : null,
+      reminder: json['reminder'],
+      attachments: json['attachments'] != null ? List<String>.from(json['attachments']) : [],
       completedAt: json['completed_at'] != null
           ? DateTime.parse(json['completed_at'])
           : null,
@@ -140,6 +157,11 @@ class Item {
       'column_position': columnPosition,
       'color': color,
       'icon': icon,
+      'notes': notes,
+      'tags': tags,
+      'due_date': dueDate?.toIso8601String(),
+      'reminder': reminder,
+      'attachments': attachments,
       'completed_at': completedAt?.toIso8601String(),
       'created_at': createdAt.toIso8601String(),
     };
@@ -162,6 +184,11 @@ class Item {
     int? columnPosition,
     String? color,
     String? icon,
+    String? notes,
+    List<String>? tags,
+    DateTime? dueDate,
+    String? reminder,
+    List<String>? attachments,
     DateTime? completedAt,
     DateTime? createdAt,
     List<Item>? children,
@@ -184,6 +211,11 @@ class Item {
       columnPosition: columnPosition ?? this.columnPosition,
       color: color ?? this.color,
       icon: icon ?? this.icon,
+      notes: notes ?? this.notes,
+      tags: tags ?? this.tags,
+      dueDate: dueDate ?? this.dueDate,
+      reminder: reminder ?? this.reminder,
+      attachments: attachments ?? this.attachments,
       completedAt: completedAt ?? this.completedAt,
       createdAt: createdAt ?? this.createdAt,
       children: children ?? this.children,

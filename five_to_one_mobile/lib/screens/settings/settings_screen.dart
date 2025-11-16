@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
 import '../../services/auth_service.dart';
+import '../../providers/theme_provider.dart';
+import 'appearance_settings_screen.dart';
+import 'accessibility_settings_screen.dart';
+import 'productivity_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -127,6 +132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final user = _authService.currentUser;
     final isAnonymous = _authService.isAnonymous;
+    final themeProvider = context.watch<ThemeProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -135,17 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           // Account Section
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Account',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textSecondary,
-              ),
-            ),
-          ),
+          _SectionHeader('Account'),
 
           // Account info
           ListTile(
@@ -164,40 +160,164 @@ class _SettingsScreenState extends State<SettingsScreen> {
               leading: const Icon(Icons.upgrade, color: AppTheme.accentOrange),
               title: const Text('Upgrade Account'),
               subtitle: const Text('Create permanent account to save data'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: _handleUpgradeAccount,
             ),
 
           const Divider(),
 
-          // App Section
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'App',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textSecondary,
-              ),
-            ),
+          // Customization Section
+          _SectionHeader('Customization'),
+
+          ListTile(
+            leading: const Icon(Icons.palette),
+            title: const Text('Appearance'),
+            subtitle: const Text('Theme, colors, and background'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AppearanceSettingsScreen(),
+                ),
+              );
+            },
           ),
+
+          ListTile(
+            leading: const Icon(Icons.accessibility_new),
+            title: const Text('Accessibility'),
+            subtitle: const Text('High contrast, large text, and more'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AccessibilitySettingsScreen(),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
+
+          // Productivity Section
+          _SectionHeader('Productivity'),
+
+          ListTile(
+            leading: const Icon(Icons.trending_up),
+            title: const Text('Productivity Settings'),
+            subtitle: const Text('Goals, streaks, and gamification'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProductivitySettingsScreen(),
+                ),
+              );
+            },
+          ),
+
+          const Divider(),
+
+          // Data & Privacy Section
+          _SectionHeader('Data & Privacy'),
+
+          SwitchListTile(
+            secondary: const Icon(Icons.cloud_upload),
+            title: const Text('Auto Backup'),
+            subtitle: const Text('Automatically backup data to cloud'),
+            value: themeProvider.autoBackup,
+            onChanged: (value) => themeProvider.setAutoBackup(value),
+          ),
+
+          SwitchListTile(
+            secondary: const Icon(Icons.offline_bolt),
+            title: const Text('Offline Mode'),
+            subtitle: const Text('Work without internet connection'),
+            value: themeProvider.offlineMode,
+            onChanged: (value) => themeProvider.setOfflineMode(value),
+          ),
+
+          SwitchListTile(
+            secondary: const Icon(Icons.wifi),
+            title: const Text('Sync on WiFi Only'),
+            subtitle: const Text('Save mobile data'),
+            value: themeProvider.syncOnWifiOnly,
+            onChanged: (value) => themeProvider.setSyncOnWifiOnly(value),
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.download),
+            title: const Text('Export Data'),
+            subtitle: const Text('Download your tasks and settings'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Export feature coming soon')),
+              );
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.upload),
+            title: const Text('Import Data'),
+            subtitle: const Text('Restore from backup file'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Import feature coming soon')),
+              );
+            },
+          ),
+
+          const Divider(),
+
+          // App Section
+          _SectionHeader('App'),
 
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
-            subtitle: const Text('Subtask - Task management with frameworks'),
+            subtitle: const Text('Five-to-One v2.0.0'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               showAboutDialog(
                 context: context,
-                applicationName: 'Subtask',
-                applicationVersion: '1.0.0',
-                applicationLegalese: '© 2024 Subtask',
+                applicationName: 'Five-to-One',
+                applicationVersion: '2.0.0',
+                applicationLegalese: '© 2024 Five-to-One',
                 children: [
                   const SizedBox(height: 16),
                   const Text(
-                    'A task management app with framework support for the Buffett-Munger 5/25 method and Eisenhower Matrix.',
+                    'A comprehensive task management app with pluggable productivity frameworks including Buffett-Munger 5/25, Eisenhower Matrix, Time Blocking, Kanban, and GTD.',
                   ),
                 ],
+              );
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('Help & Tutorials'),
+            subtitle: const Text('Learn how to use frameworks'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Help center coming soon')),
+              );
+            },
+          ),
+
+          ListTile(
+            leading: const Icon(Icons.feedback_outlined),
+            title: const Text('Send Feedback'),
+            subtitle: const Text('Help us improve'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Feedback form coming soon')),
               );
             },
           ),
@@ -213,7 +333,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             onTap: _handleSignOut,
           ),
+
+          const SizedBox(height: 32),
         ],
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          color: Theme.of(context).colorScheme.primary,
+          letterSpacing: 1.2,
+        ),
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
+import 'providers/theme_provider.dart';
 import 'screens/auth/auth_screen.dart';
 import 'screens/dashboard/simple_task_list.dart';
 import 'screens/onboarding/onboarding_flow.dart';
@@ -49,11 +51,30 @@ class FiveToOneApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Five to One',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      home: const AppFlowManager(),
+    return ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, _) {
+          // Determine brightness based on theme mode
+          Brightness brightness;
+          if (themeProvider.themeMode == ThemeMode.system) {
+            brightness = MediaQuery.platformBrightnessOf(context);
+          } else {
+            brightness = themeProvider.themeMode == ThemeMode.dark
+                ? Brightness.dark
+                : Brightness.light;
+          }
+
+          return MaterialApp(
+            title: 'Five to One',
+            debugShowCheckedModeBanner: false,
+            themeMode: themeProvider.themeMode,
+            theme: AppTheme.getTheme(themeProvider.settings, Brightness.light),
+            darkTheme: AppTheme.getTheme(themeProvider.settings, Brightness.dark),
+            home: const AppFlowManager(),
+          );
+        },
+      ),
     );
   }
 }
