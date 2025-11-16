@@ -786,24 +786,39 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                 : null,
           ),
         ),
-        title: Text(
-          task.title,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                decoration: task.isCompleted
-                    ? TextDecoration.lineThrough
-                    : TextDecoration.none,
-                color: task.isCompleted
-                    ? AppTheme.textSecondary
-                    : AppTheme.textPrimary,
-              ),
+        title: GestureDetector(
+          onLongPress: () => _showEditTaskDialog(task),
+          child: Text(
+            task.title,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  decoration: task.isCompleted
+                      ? TextDecoration.lineThrough
+                      : TextDecoration.none,
+                  color: task.isCompleted
+                      ? AppTheme.textSecondary
+                      : AppTheme.textPrimary,
+                ),
+          ),
         ),
         subtitle: task.frameworkIds.isNotEmpty ? _buildFrameworkBadge(task) : null,
-        trailing: const Icon(
-          Icons.chevron_right,
-          color: AppTheme.textSecondary,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.chevron_right,
+              color: AppTheme.textSecondary,
+            ),
+            const SizedBox(width: 8),
+            ReorderableDragStartListener(
+              index: _children.indexOf(task),
+              child: Icon(
+                Icons.drag_handle,
+                color: AppTheme.textSecondary.withOpacity(0.5),
+              ),
+            ),
+          ],
         ),
         onTap: () => _navigateToSubtasks(task),
-        onLongPress: () => _showEditTaskDialog(task),
       ),
     );
   }
